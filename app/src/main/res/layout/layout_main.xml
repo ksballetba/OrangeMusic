@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+
+    android:fitsSystemWindows="true">
+
+    <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/main_coordinator_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:fitsSystemWindows="true">
+
+        <android.support.design.widget.AppBarLayout
+            android:id="@+id/main_app_bar_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:fitsSystemWindows="true">
+
+            <android.support.v7.widget.Toolbar
+                android:id="@+id/main_tool_bar"
+                android:layout_width="match_parent"
+                android:layout_height="?attr/actionBarSize"
+                android:background="?attr/colorPrimary"
+                android:fitsSystemWindows="true"
+                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+                app:popupTheme="@style/ThemeOverlay.AppCompat.Light"
+                app:layout_scrollFlags="scroll|enterAlways|snap" />
+
+            <android.support.design.widget.TabLayout
+                android:id="@+id/main_tab_layout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:tabMode="scrollable"
+                app:tabSelectedTextColor="@android:color/white"
+                app:tabTextColor="@android:color/darker_gray" />
+
+
+        </android.support.design.widget.AppBarLayout>
+
+        <android.support.v4.view.ViewPager
+            android:id="@+id/main_view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+    </android.support.design.widget.CoordinatorLayout>
+
+
+
+
+    <RelativeLayout
+        android:id="@+id/music_mini_panel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:minHeight="?attr/actionBarSize"
+        android:layout_alignParentBottom="true"
+        android:background="@color/colorPrimary">
+
+
+
+        <ImageView
+            android:id="@+id/music_mini_thump"
+            android:layout_width="?attr/actionBarSize"
+            android:layout_height="?attr/actionBarSize"
+            android:layout_centerVertical="true"
+            android:scaleType="centerCrop"
+            android:src="@drawable/music"
+            android:transitionName="album_image"/>
+
+       <LinearLayout
+           android:id="@+id/music_mini_info"
+           android:layout_width="match_parent"
+           android:layout_height="wrap_content"
+           android:layout_toRightOf="@id/music_mini_thump"
+           android:layout_toLeftOf="@id/muxic_mini_option"
+           android:layout_centerVertical="true"
+           android:orientation="vertical"
+           android:layout_marginLeft="16dp"
+           android:layout_marginBottom="12dp">
+
+           <TextView
+               android:id="@+id/main_mini_title"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:maxLines="1"
+               android:textSize="18sp"
+               android:ellipsize="end"
+               android:text="如风过境"
+               android:transitionName="music_name"
+               android:textColor="@color/icons"
+               />
+           <TextView
+               android:id="@+id/main_mini_artist_album"
+               android:layout_width="match_parent"
+               android:layout_height="wrap_content"
+               android:maxLines="1"
+               android:ellipsize="end"
+               android:text="哎哟蔚蔚"
+               android:transitionName="artist_name"
+               android:textColor="@color/primary_light"
+               />
+       </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/muxic_mini_option"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="20dp"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/music_mini_option_previous"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/ic_skip_previous_white_24dp"/>
+
+            <Button
+                android:id="@+id/music_mini_option_play"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/ic_play_arrow_white_24dp"/>
+
+            <Button
+                android:id="@+id/music_mini_option_next"
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:background="@drawable/ic_skip_next_white_24dp"/>
+
+
+        </LinearLayout>
+
+    </RelativeLayout>
+
+
+
+</RelativeLayout>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_music"
+            android:icon="@drawable/ic_music_note_white_24dp"
+            android:title="我的歌曲"/>
+
+        <item
+            android:id="@+id/nav_music_list"
+            android:icon="@drawable/ic_queue_music_white_24dp"
+            android:title="我的歌单"/>
+
+        <item
+            android:id="@+id/nav_folder"
+            android:icon="@drawable/ic_folder_white_24dp"
+            android:title="文件夹"/>
+
+        <item
+            android:id="@+id/nav_favorite"
+            android:icon="@drawable/ic_favorite_white_24dp"
+            android:title="我喜欢"/>
+
+    </group>
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/nav_setting"
+            android:icon="@drawable/ic_settings_white_24dp"
+            android:title="设置"/>
+
+
+
+    </group>
+</menu>
