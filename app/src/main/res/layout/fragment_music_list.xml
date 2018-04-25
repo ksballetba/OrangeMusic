@@ -1,0 +1,24 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    tools:context="com.ksblletba.orangemusic.fragment.MusicListFragment">
+
+     TODO: Update blank fragment layout
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/music_recyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+
+
+    </android.support.v7.widget.RecyclerView>
+
+    <!--<ListView-->
+        <!--android:id="@+id/music_listview"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"></ListView>-->
+
+</FrameLayout>

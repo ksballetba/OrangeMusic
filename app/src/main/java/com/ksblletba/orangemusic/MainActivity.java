@@ -1,6 +1,6 @@
 package com.ksblletba.orangemusic;
 
-import android.app.ActivityOptions;
+import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
@@ -11,6 +11,7 @@ import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.ActivityOptionsCompat;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.util.Pair;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.view.ViewCompat;
@@ -27,6 +28,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+
+import com.ksblletba.orangemusic.bean.AlbumListItem;
+import com.ksblletba.orangemusic.fragment.AlbumListFragment;
+import com.ksblletba.orangemusic.fragment.MusicListFragment;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -68,6 +76,9 @@ public class MainActivity extends AppCompatActivity {
     DrawerLayout drawLayout;
     private int navMenuIndex = 0;
     private ActionBar actionBar;
+    private List<Fragment> fragmentList = new ArrayList<>();
+    private MusicListFragment musicListFragment = new MusicListFragment();
+    private AlbumListFragment albumListFragment = new AlbumListFragment();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,7 +89,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-
+        initViewPager();
 
         setSupportActionBar(mainToolBar);
         actionBar = getSupportActionBar();
@@ -87,9 +98,8 @@ public class MainActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
         }
-        mainTabLayout.addTab(mainTabLayout.newTab().setText("歌曲"));
-        mainTabLayout.addTab(mainTabLayout.newTab().setText("歌手"));
-        mainTabLayout.addTab(mainTabLayout.newTab().setText("专辑"));
+
+
         navViewTab.setNavigationItemSelectedListener(navItemSlistener);
         musicMiniPanel.setOnClickListener(viewClistener);
 
@@ -125,6 +135,24 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
     };
+    private void initViewPager(){
+        fragmentList.add(musicListFragment);
+        fragmentList.add(albumListFragment);
+        mainViewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
+            @Override
+            public Fragment getItem(int position) {
+                return fragmentList.get(position);
+            }
+
+            @Override
+            public int getCount() {
+                return fragmentList.size();
+            }
+        });
+        mainTabLayout.setupWithViewPager(mainViewPager);
+        mainTabLayout.getTabAt(0).setText("歌曲");
+        mainTabLayout.getTabAt(1).setText("专辑");
+    }
 
     private View.OnClickListener viewClistener = new View.OnClickListener() {
         @Override
