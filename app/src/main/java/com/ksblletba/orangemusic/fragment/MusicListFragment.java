@@ -1,7 +1,9 @@
 package com.ksblletba.orangemusic.fragment;
 
 
+import android.Manifest;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,6 +17,8 @@ import android.widget.ListView;
 import com.ksblletba.orangemusic.R;
 import com.ksblletba.orangemusic.adapter.MusicListItemAdapter;
 import com.ksblletba.orangemusic.bean.MusicListItem;
+import com.ksblletba.orangemusic.bean.Song;
+import com.ksblletba.orangemusic.utils.MediaUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,10 +26,13 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import permissions.dispatcher.NeedsPermission;
+import permissions.dispatcher.RuntimePermissions;
 
 /**
  * A simple {@link Fragment} subclass.
  */
+@RuntimePermissions
 public class MusicListFragment extends Fragment {
 
 //    @BindView(R.id.music_listview)
@@ -50,7 +57,8 @@ public class MusicListFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_music_list, container, false);
         musicRecyclerview = view.findViewById(R.id.music_recyclerview);
-        initRecyclerView();
+//        initRecyclerView();
+        MusicListFragmentPermissionsDispatcher.initViewWithPermissionCheck(this);
         unbinder = ButterKnife.bind(this, view);
         return view;
     }
@@ -61,15 +69,22 @@ public class MusicListFragment extends Fragment {
         unbinder.unbind();
     }
 
-    private void initRecyclerView() {
-        MusicListItem musicListItem = new MusicListItem("如风过境", R.drawable.music, "哎哟蔚蔚");
-        for (int i = 0; i < 20; i++) {
-            musicListItemList.add(musicListItem);
+    @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+    void initView() {
+        List<Song> songs = MediaUtils.getAudioList(getActivity());
+        for (Song song : songs) {
+            musicListItemList.add(new MusicListItem(song.getDisplayName(),song.getAlbumId(),song.getAlbum()));
         }
         Log.d("data", "+++"+musicListItemList.size());
         GridLayoutManager linearLayoutManager = new GridLayoutManager(getActivity(), 1);
         musicRecyclerview.setLayoutManager(linearLayoutManager);
         adapter = new MusicListItemAdapter(musicListItemList);
         musicRecyclerview.setAdapter(adapter);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        MusicListFragmentPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
 }
