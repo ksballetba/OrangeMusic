@@ -32,7 +32,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:tabMode="scrollable"
-                app:tabSelectedTextColor="@android:color/white" />
+                app:tabSelectedTextColor="@android:color/white"
+                app:tabTextColor="@color/primary_light"/>
         </android.support.design.widget.AppBarLayout>
         <android.support.v4.view.ViewPager
             android:id="@+id/main_view_pager"

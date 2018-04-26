@@ -1,6 +1,7 @@
 package com.ksblletba.orangemusic.utils;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -177,6 +178,10 @@ public class MediaUtils {
 
         cursor.close();
         return audioList;
+    }
+
+    public static Uri getAlbumArtUri(long albumId) {
+        return ContentUris.withAppendedId(Uri.parse("content://media/external/audio/albumart"), albumId);
     }
 
     public static String formatTime (int durationInMilliseconds) {

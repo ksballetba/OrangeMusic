@@ -2,6 +2,8 @@ package com.ksblletba.orangemusic.fragment;
 
 
 import android.Manifest;
+import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -10,7 +12,9 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 
+import com.bumptech.glide.Glide;
 import com.ksblletba.orangemusic.R;
 import com.ksblletba.orangemusic.adapter.AlbumListItemAdapter;
 import com.ksblletba.orangemusic.bean.Album;
@@ -33,6 +37,7 @@ import permissions.dispatcher.RuntimePermissions;
 public class AlbumListFragment extends Fragment {
     private List<AlbumListItem> albumListItemList = new ArrayList<>();
     private AlbumListItemAdapter adapter;
+    private LinearLayout linearLayout;
 
 
     @BindView(R.id.album_recyclerview)
@@ -50,11 +55,13 @@ public class AlbumListFragment extends Fragment {
         // Inflate the layout for this fragment
         View view = inflater.inflate(R.layout.fragment_album_list, container, false);
         albumRecyclerview = view.findViewById(R.id.album_recyclerview);
+        linearLayout = view.findViewById(R.id.album_bg);
 //        initViewPager();
         AlbumListFragmentPermissionsDispatcher.initViewWithPermissionCheck(this);
         unbinder = ButterKnife.bind(this, view);
-        return view;
 
+
+        return view;
     }
 
     @Override
@@ -79,6 +86,8 @@ public class AlbumListFragment extends Fragment {
         List<Album> albums = MediaUtils.getAlbumList(getActivity());
         for (Album album : albums) {
             albumListItemList.add(new AlbumListItem(album.getAlbum(),album.getAlbumArt(),album.getArtist()));
+
+//            linearLayout.setBackgroundColor(Color.BLACK);
         }
         GridLayoutManager layoutManager = new GridLayoutManager(getActivity(),2);
         adapter = new AlbumListItemAdapter(albumListItemList);

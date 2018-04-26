@@ -1,19 +1,29 @@
 package com.ksblletba.orangemusic.adapter;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.ksblletba.orangemusic.R;
 import com.ksblletba.orangemusic.bean.AlbumListItem;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -25,12 +35,14 @@ public class AlbumListItemAdapter extends RecyclerView.Adapter<AlbumListItemAdap
     private Context mContext;
     private List<AlbumListItem> mAlbumListItemList;
     private OnItemClickListener mOnItemClickListener = null;
+    private List<Palette.Swatch> swatchs = new ArrayList<>();
 
     static class ViewHolder extends RecyclerView.ViewHolder{
         CardView cardView;
         ImageView albumImage;
         TextView albumMusicName;
         TextView albumArtistName;
+        LinearLayout albumBg;
 
         public ViewHolder(View view){
             super(view);
@@ -38,6 +50,7 @@ public class AlbumListItemAdapter extends RecyclerView.Adapter<AlbumListItemAdap
             albumImage = view.findViewById(R.id.album_image);
             albumMusicName = view.findViewById(R.id.album_music_name);
             albumArtistName = view.findViewById(R.id.album_artist_name);
+            albumBg = view.findViewById(R.id.album_bg);
         }
     }
 
@@ -65,10 +78,12 @@ public class AlbumListItemAdapter extends RecyclerView.Adapter<AlbumListItemAdap
 
     @Override
     public void onBindViewHolder(final ViewHolder holder, int position) {
+
         AlbumListItem albumListItem = mAlbumListItemList.get(position);
         holder.albumMusicName.setText(albumListItem.getMusicName());
         holder.albumArtistName.setText(albumListItem.getArtistName());
         Glide.with(mContext).load(albumListItem.getMusicAlbumImageId()).into(holder.albumImage);
+
         if(mOnItemClickListener!=null){
             holder.cardView.setOnClickListener(new View.OnClickListener() {
                 @Override

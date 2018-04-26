@@ -39,6 +39,7 @@
                 android:layout_height="wrap_content"
                 android:textSize="15sp"
                 android:textColor="@color/primary_text"
+                android:maxLines="1"
                 android:text="如风过境"/>
             <TextView
                 android:id="@+id/artist_name"

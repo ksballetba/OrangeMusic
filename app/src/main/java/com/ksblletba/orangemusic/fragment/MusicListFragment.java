@@ -2,6 +2,7 @@ package com.ksblletba.orangemusic.fragment;
 
 
 import android.Manifest;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
@@ -74,11 +75,10 @@ public class MusicListFragment extends Fragment {
     void initView() {
         List<Song> songs = MediaUtils.getAudioList(getActivity());
         for (Song song : songs) {
-            musicListItemList.add(new MusicListItem(song.getDisplayName(),song.getAlbumId(),song.getAlbum()));
+            Uri albumArt = MediaUtils.getAlbumArtUri(song.getAlbumId());
+            musicListItemList.add(new MusicListItem(song.getTitle(),albumArt,song.getArtist()));
         }
-        if (songs.get(0).getAlbumObj()==null) {
-            Toast.makeText(getActivity(),"fadsfas",Toast.LENGTH_SHORT).show();
-        }
+
         Log.d("data", "+++"+songs.get(0).getArtist());
         GridLayoutManager linearLayoutManager = new GridLayoutManager(getActivity(), 1);
         musicRecyclerview.setLayoutManager(linearLayoutManager);
