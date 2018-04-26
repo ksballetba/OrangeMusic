@@ -63,22 +63,22 @@ public class AlbumListFragment extends Fragment {
         unbinder.unbind();
     }
 
-    private void initViewPager(){
-        AlbumListItem albumListItem=new AlbumListItem("如风过境",R.drawable.music,"哎哟蔚蔚");
-        for (int i = 0; i < 20; i++) {
-            albumListItemList.add(albumListItem);
-        }
-        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(),2);
-        adapter = new AlbumListItemAdapter(albumListItemList);
-        albumRecyclerview.setLayoutManager(layoutManager);
-        albumRecyclerview.setAdapter(adapter);
-    }
+//    private void initViewPager(){
+//        AlbumListItem albumListItem=new AlbumListItem("如风过境",R.drawable.music,"哎哟蔚蔚");
+//        for (int i = 0; i < 20; i++) {
+//            albumListItemList.add(albumListItem);
+//        }
+//        GridLayoutManager layoutManager = new GridLayoutManager(getActivity(),2);
+//        adapter = new AlbumListItemAdapter(albumListItemList);
+//        albumRecyclerview.setLayoutManager(layoutManager);
+//        albumRecyclerview.setAdapter(adapter);
+//    }
 
     @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
     void initView() {
         List<Album> albums = MediaUtils.getAlbumList(getActivity());
         for (Album album : albums) {
-            albumListItemList.add(new AlbumListItem(album.getAlbum(),R.drawable.music,album.getArtist()));
+            albumListItemList.add(new AlbumListItem(album.getAlbum(),album.getAlbumArt(),album.getArtist()));
         }
         GridLayoutManager layoutManager = new GridLayoutManager(getActivity(),2);
         adapter = new AlbumListItemAdapter(albumListItemList);

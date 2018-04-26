@@ -2,8 +2,9 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/OrangeMusic.iml" filepath="$PROJECT_DIR$/OrangeMusic.iml" />
       <module fileurl="file://D:\AndroidApp\OrangeMusic-master\OrangeMusic.iml" filepath="D:\AndroidApp\OrangeMusic-master\OrangeMusic.iml" />
-      <module fileurl="file://$PROJECT_DIR$/OrangeMusic-master.iml" filepath="$PROJECT_DIR$/OrangeMusic-master.iml" />
+      <module fileurl="file://D:\AndroidApp\OrangeMusic\OrangeMusic-master.iml" filepath="D:\AndroidApp\OrangeMusic\OrangeMusic-master.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
       <module fileurl="file://D:\AndroidApp\OrangeMusic-master\app\app.iml" filepath="D:\AndroidApp\OrangeMusic-master\app\app.iml" />
     </modules>

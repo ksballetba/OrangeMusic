@@ -3,12 +3,17 @@ package com.ksblletba.orangemusic.utils;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
 
 import com.ksblletba.orangemusic.bean.Album;
 import com.ksblletba.orangemusic.bean.Song;
 
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +23,7 @@ import java.util.List;
  */
 
 public class MediaUtils {
+
 
     private static final String TAG = MediaUtils.class.getSimpleName();
 
@@ -172,8 +178,6 @@ public class MediaUtils {
         cursor.close();
         return audioList;
     }
-
-
 
     public static String formatTime (int durationInMilliseconds) {
         int seconds = durationInMilliseconds /  1000;

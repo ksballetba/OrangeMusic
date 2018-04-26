@@ -30,7 +30,6 @@ public class Song {
         year = bundle.getInt(MediaStore.Audio.Media.YEAR);
         mimeType = bundle.getString(MediaStore.Audio.Media.MIME_TYPE);
         path = bundle.getString(MediaStore.Audio.Media.DATA);
-
         artistId = bundle.getInt(MediaStore.Audio.Media.ARTIST_ID);
         albumId = bundle.getInt(MediaStore.Audio.Media.ALBUM_ID);
         track = bundle.getInt(MediaStore.Audio.Media.TRACK);

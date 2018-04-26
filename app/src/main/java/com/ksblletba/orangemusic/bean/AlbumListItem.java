@@ -6,10 +6,10 @@ package com.ksblletba.orangemusic.bean;
 
 public class AlbumListItem {
     private String musicName;
-    private int musicAlbumImageId;
+    private String musicAlbumImageId;
     private String artistName;
 
-    public AlbumListItem(String musicName, int musicAlbumImageId, String artistName) {
+    public AlbumListItem(String musicName, String musicAlbumImageId, String artistName) {
         this.musicName = musicName;
         this.musicAlbumImageId = musicAlbumImageId;
         this.artistName = artistName;
@@ -23,11 +23,11 @@ public class AlbumListItem {
         this.musicName = musicName;
     }
 
-    public int getMusicAlbumImageId() {
+    public String getMusicAlbumImageId() {
         return musicAlbumImageId;
     }
 
-    public void setMusicAlbumImageId(int musicAlbumImageId) {
+    public void setMusicAlbumImageId(String musicAlbumImageId) {
         this.musicAlbumImageId = musicAlbumImageId;
     }
 
