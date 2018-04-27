@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity {
         Intent intent = new Intent(this, PlayDetailActivity.class);
         Pair ShareImage = new Pair<>(musicMiniThump, ViewCompat.getTransitionName(musicMiniThump));
         Pair ShareTextMusic = new Pair<>(mainMiniTitle, ViewCompat.getTransitionName(mainMiniTitle));
-        Pair ShareTextArtist = new Pair<>(mainMiniTitle, ViewCompat.getTransitionName(mainMiniTitle));
+        Pair ShareTextArtist = new Pair<>(mainMiniArtistAlbum, ViewCompat.getTransitionName(mainMiniArtistAlbum));
         ActivityOptionsCompat transitionActivityOptions =
                 ActivityOptionsCompat.makeSceneTransitionAnimation(this,ShareImage,ShareTextMusic,ShareTextArtist);
         ActivityCompat.startActivity(this,

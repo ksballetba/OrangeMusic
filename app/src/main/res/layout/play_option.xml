@@ -1,57 +1,66 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="150dp"
     android:layout_alignParentBottom="true">
+
+    <SeekBar
+        android:id="@+id/play_detail_progressbar"
+        android:layout_width="320dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"/>
 
 
 
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
+        android:layout_centerInParent="true"
         android:orientation="horizontal">
 
         <Button
             android:id="@+id/play_detail_fav"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:background="@drawable/ic_favorite_white_24dp"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:background="@drawable/ic_favorite_border_black_18dp"
             android:layout_margin="15dp"/>
 
         <Button
             android:id="@+id/paly_detail_previous"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:background="@drawable/ic_skip_previous_white_24dp"
+            android:background="@drawable/ic_skip_previous_black_24dp"
             android:layout_margin="15dp"/>
-        <Button
+        <android.support.design.widget.FloatingActionButton
             android:id="@+id/paly_detail_play"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:background="@drawable/ic_play_circle_filled_white_24dp"
-            android:layout_margin="15dp"/>
+            app:fabSize="mini"
+            android:layout_gravity="center"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            app:elevation="3dp"
+            android:src="@drawable/ic_play_arrow_white_24dp"
+            android:background="@drawable/ic_play_circle_filled_white_24dp" />
         <Button
             android:id="@+id/paly_detail_next"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:background="@drawable/ic_skip_next_white_24dp"
+            android:background="@drawable/ic_skip_next_black_24dp"
             android:layout_margin="15dp"/>
         <Button
             android:id="@+id/paly_detail_muscilist"
             android:layout_width="30dp"
             android:layout_height="30dp"
-            android:background="@drawable/ic_queue_music_white_24dp"
+            android:background="@drawable/ic_queue_music_black_24dp"
             android:layout_margin="15dp"/>
 
     </LinearLayout>
 
-    <SeekBar
-        android:id="@+id/play_detail_progressbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"/>
+
 
 
 

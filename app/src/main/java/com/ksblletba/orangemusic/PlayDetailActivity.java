@@ -3,6 +3,7 @@ package com.ksblletba.orangemusic;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -30,14 +31,14 @@ public class PlayDetailActivity extends AppCompatActivity {
     Button playDetailFav;
     @BindView(R.id.paly_detail_previous)
     Button palyDetailPrevious;
-    @BindView(R.id.paly_detail_play)
-    Button palyDetailPlay;
     @BindView(R.id.paly_detail_next)
     Button palyDetailNext;
     @BindView(R.id.paly_detail_muscilist)
     Button palyDetailMuscilist;
     @BindView(R.id.play_detail_progressbar)
     SeekBar playDetailProgressbar;
+    @BindView(R.id.paly_detail_play)
+    FloatingActionButton palyDetailPlay;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,7 +51,7 @@ public class PlayDetailActivity extends AppCompatActivity {
         ButterKnife.bind(this);
         setSupportActionBar(playDetailToolbar);
         ActionBar actionBar = getSupportActionBar();
-        if(actionBar!=null){
+        if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_expand_less_white_24dp);
         }

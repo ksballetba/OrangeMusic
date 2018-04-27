@@ -5,7 +5,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="@color/colorPrimary"
     tools:context="com.ksblletba.orangemusic.PlayDetailActivity">
 
     <LinearLayout
@@ -55,7 +54,7 @@
                     android:layout_height="wrap_content"
                     android:text="如风过境"
                     android:textSize="20sp"
-                    android:textColor="@color/icons"
+                    android:textColor="@color/primary_text"
                     android:transitionName="music_name"/>
                 <TextView
                     android:layout_marginTop="10dp"
@@ -64,7 +63,7 @@
                     android:layout_gravity="center"
                     android:text="哎哟蔚蔚"
                     android:textSize="15sp"
-                    android:textColor="@color/primary_light"
+                    android:textColor="@color/secondary_text"
                     android:transitionName="music_name"/>
 
             </LinearLayout>
