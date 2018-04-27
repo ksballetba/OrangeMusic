@@ -1,10 +1,12 @@
 package com.ksblletba.orangemusic.bean;
 
+import java.io.Serializable;
+
 /**
  * Created by Administrator on 2018/4/26.
  */
 
-public class Album {
+public class Album implements Serializable {
 
     private int id, minYear, maxYear, numSongs;
     private String album, albumKey, artist, albumArt;

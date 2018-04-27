@@ -64,7 +64,7 @@
                     android:text="哎哟蔚蔚"
                     android:textSize="15sp"
                     android:textColor="@color/secondary_text"
-                    android:transitionName="music_name"/>
+                    android:transitionName="artist_name"/>
 
             </LinearLayout>
 

@@ -2,19 +2,30 @@ package com.ksblletba.orangemusic.fragment;
 
 
 import android.Manifest;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.Pair;
+import android.support.v4.view.ViewCompat;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.bumptech.glide.Glide;
+import com.ksblletba.orangemusic.AlbumActivity;
+import com.ksblletba.orangemusic.MainActivity;
+import com.ksblletba.orangemusic.PlayDetailActivity;
 import com.ksblletba.orangemusic.R;
 import com.ksblletba.orangemusic.adapter.AlbumListItemAdapter;
 import com.ksblletba.orangemusic.bean.Album;
@@ -40,6 +51,7 @@ public class AlbumListFragment extends Fragment {
     private LinearLayout linearLayout;
 
 
+
     @BindView(R.id.album_recyclerview)
     RecyclerView albumRecyclerview;
     Unbinder unbinder;
@@ -59,8 +71,6 @@ public class AlbumListFragment extends Fragment {
 //        initViewPager();
         AlbumListFragmentPermissionsDispatcher.initViewWithPermissionCheck(this);
         unbinder = ButterKnife.bind(this, view);
-
-
         return view;
     }
 
@@ -83,7 +93,9 @@ public class AlbumListFragment extends Fragment {
 
     @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
     void initView() {
-        List<Album> albums = MediaUtils.getAlbumList(getActivity());
+        final List<Album> albums = MediaUtils.getAlbumList(getActivity());
+
+
         for (Album album : albums) {
             albumListItemList.add(new AlbumListItem(album.getAlbum(),album.getAlbumArt(),album.getArtist()));
 
@@ -93,7 +105,28 @@ public class AlbumListFragment extends Fragment {
         adapter = new AlbumListItemAdapter(albumListItemList);
         albumRecyclerview.setLayoutManager(layoutManager);
         albumRecyclerview.setAdapter(adapter);
+        adapter.setOnItemClickListener(new AlbumListItemAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
+                editor.putString("album_art",albums.get(position).getAlbumArt());
+                editor.putString("album_name",albums.get(position).getAlbum());
+                editor.putInt("album_id",albums.get(position).getId());
+                editor.apply();
+                luanchAlbumAct();
+            }
 
+            @Override
+            public void onItemLongClick(View view, int position) {
+
+            }
+        });
+    }
+
+    private void luanchAlbumAct(){
+        Intent intent = new Intent(getActivity(), AlbumActivity.class);
+        startActivity(intent);
     }
 
     @Override

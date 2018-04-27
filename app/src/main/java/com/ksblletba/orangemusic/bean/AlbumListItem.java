@@ -1,10 +1,14 @@
 package com.ksblletba.orangemusic.bean;
 
+import com.google.gson.annotations.SerializedName;
+
+import java.io.Serializable;
+
 /**
  * Created by Administrator on 2018/4/25.
  */
 
-public class AlbumListItem {
+public class AlbumListItem implements Serializable {
     private String musicName;
     private String musicAlbumImageId;
     private String artistName;

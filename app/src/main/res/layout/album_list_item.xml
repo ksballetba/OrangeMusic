@@ -17,7 +17,8 @@
             android:id="@+id/album_image"
             android:layout_width="match_parent"
             android:layout_height="200dp"
-            android:src="@drawable/music"/>
+            android:src="@drawable/music"
+            android:transitionName="album_art"/>
 
         <LinearLayout
             android:id="@+id/album_bg"
