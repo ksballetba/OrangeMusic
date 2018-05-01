@@ -19,7 +19,12 @@
             </intent-filter>
         </activity>
         <activity android:name=".PlayDetailActivity" />
-        <activity android:name=".AlbumActivity"></activity>
+        <activity android:name=".AlbumActivity" />
+
+        <service
+            android:name=".service.PlayService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
