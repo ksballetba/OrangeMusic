@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
@@ -134,4 +135,6 @@ public class AlbumListFragment extends Fragment {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         AlbumListFragmentPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
+
+
 }

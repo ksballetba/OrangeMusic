@@ -1,5 +1,6 @@
 package com.ksblletba.orangemusic;
 
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
@@ -13,6 +14,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
+import android.widget.TextView;
+
+import com.bumptech.glide.Glide;
+import com.ksblletba.orangemusic.utils.MediaUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -39,6 +44,10 @@ public class PlayDetailActivity extends AppCompatActivity {
     SeekBar playDetailProgressbar;
     @BindView(R.id.paly_detail_play)
     FloatingActionButton palyDetailPlay;
+    @BindView(R.id.play_detail_music_title)
+    TextView playDetailMusicTitle;
+    @BindView(R.id.play_detail_artist_name)
+    TextView playDetailArtistName;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +59,7 @@ public class PlayDetailActivity extends AppCompatActivity {
         setContentView(R.layout.activity_play_detail);
         ButterKnife.bind(this);
         setSupportActionBar(playDetailToolbar);
+        setMusicInfo(getIntent().getIntExtra("image_art",0),getIntent().getStringExtra("music_title"),getIntent().getStringExtra("artist_name"));
         ActionBar actionBar = getSupportActionBar();
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
@@ -64,5 +74,12 @@ public class PlayDetailActivity extends AppCompatActivity {
                 finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void setMusicInfo(int imageArt, String musicTitle, String artistName) {
+        Uri currentSongArt = MediaUtils.getAlbumArtUri(imageArt);
+        playDetailMusicTitle.setText(musicTitle);
+        playDetailArtistName.setText(artistName);
+        Glide.with(this).load(currentSongArt).into(playDetailImage);
     }
 }

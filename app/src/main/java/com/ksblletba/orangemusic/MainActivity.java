@@ -1,5 +1,6 @@
 package com.ksblletba.orangemusic;
 
+import android.net.Uri;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.Build;
@@ -29,9 +30,12 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.ksblletba.orangemusic.bean.AlbumListItem;
+import com.ksblletba.orangemusic.bean.Song;
 import com.ksblletba.orangemusic.fragment.AlbumListFragment;
 import com.ksblletba.orangemusic.fragment.MusicListFragment;
+import com.ksblletba.orangemusic.utils.MediaUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,6 +83,11 @@ public class MainActivity extends AppCompatActivity {
     private List<Fragment> fragmentList = new ArrayList<>();
     private MusicListFragment musicListFragment = new MusicListFragment();
     private AlbumListFragment albumListFragment = new AlbumListFragment();
+    private Song currentSong=null;
+
+    public void setCurrentSong(Song currentSong) {
+        this.currentSong = currentSong;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -167,6 +176,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void launchPlayActivity() {
         Intent intent = new Intent(this, PlayDetailActivity.class);
+
+        intent.putExtra("image_art",currentSong.getAlbumId());
+        intent.putExtra("music_title",currentSong.getTitle());
+        intent.putExtra("artist_name",currentSong.getArtist());
         Pair ShareImage = new Pair<>(musicMiniThump, ViewCompat.getTransitionName(musicMiniThump));
         Pair ShareTextMusic = new Pair<>(mainMiniTitle, ViewCompat.getTransitionName(mainMiniTitle));
         Pair ShareTextArtist = new Pair<>(mainMiniArtistAlbum, ViewCompat.getTransitionName(mainMiniArtistAlbum));
@@ -183,5 +196,11 @@ public class MainActivity extends AppCompatActivity {
                 drawLayout.openDrawer(GravityCompat.START);
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void setMusicInfo(Uri imageArt, String musicTitle, String artistName){
+        mainMiniTitle.setText(musicTitle);
+        mainMiniArtistAlbum.setText(artistName);
+        Glide.with(this).load(imageArt).into(musicMiniThump);
     }
 }

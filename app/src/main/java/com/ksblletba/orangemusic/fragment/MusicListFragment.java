@@ -2,8 +2,10 @@ package com.ksblletba.orangemusic.fragment;
 
 
 import android.Manifest;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -16,7 +18,9 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.ksblletba.orangemusic.MainActivity;
 import com.ksblletba.orangemusic.R;
+import com.ksblletba.orangemusic.adapter.AlbumListItemAdapter;
 import com.ksblletba.orangemusic.adapter.MusicListItemAdapter;
 import com.ksblletba.orangemusic.bean.MusicListItem;
 import com.ksblletba.orangemusic.bean.Song;
@@ -73,7 +77,7 @@ public class MusicListFragment extends Fragment {
 
     @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
     void initView() {
-        List<Song> songs = MediaUtils.getAudioList(getActivity());
+        final List<Song> songs = MediaUtils.getAudioList(getActivity());
         for (Song song : songs) {
             Uri albumArt = MediaUtils.getAlbumArtUri(song.getAlbumId());
             musicListItemList.add(new MusicListItem(song.getTitle(),albumArt,song.getArtist()));
@@ -83,6 +87,21 @@ public class MusicListFragment extends Fragment {
         GridLayoutManager linearLayoutManager = new GridLayoutManager(getActivity(), 1);
         musicRecyclerview.setLayoutManager(linearLayoutManager);
         adapter = new MusicListItemAdapter(musicListItemList);
+        adapter.setOnItemClickListener(new MusicListItemAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Song currentSong = songs.get(position);
+                MainActivity ma = (MainActivity) getActivity();
+                Uri currentSongArt = MediaUtils.getAlbumArtUri(currentSong.getAlbumId());
+                ma.setMusicInfo(currentSongArt,currentSong.getTitle(),currentSong.getArtist());
+                ma.setCurrentSong(currentSong);
+            }
+
+            @Override
+            public void onItemLongClick(View view, int position) {
+
+            }
+        });
         musicRecyclerview.setAdapter(adapter);
     }
 
