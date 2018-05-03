@@ -35,6 +35,8 @@ import com.ksblletba.orangemusic.bean.AlbumListItem;
 import com.ksblletba.orangemusic.bean.Song;
 import com.ksblletba.orangemusic.fragment.AlbumListFragment;
 import com.ksblletba.orangemusic.fragment.MusicListFragment;
+import com.ksblletba.orangemusic.manager.PlayManager;
+import com.ksblletba.orangemusic.service.PlayService;
 import com.ksblletba.orangemusic.utils.MediaUtils;
 
 import java.util.ArrayList;
@@ -43,7 +45,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity{
 
 
     @BindView(R.id.main_tool_bar)
@@ -66,6 +68,9 @@ public class MainActivity extends AppCompatActivity {
     LinearLayout musicMiniInfo;
     @BindView(R.id.music_mini_option_previous)
     Button musicMiniOptionPrevious;
+
+
+
     @BindView(R.id.music_mini_option_play)
     Button musicMiniOptionPlay;
     @BindView(R.id.music_mini_option_next)
@@ -84,6 +89,7 @@ public class MainActivity extends AppCompatActivity {
     private MusicListFragment musicListFragment = new MusicListFragment();
     private AlbumListFragment albumListFragment = new AlbumListFragment();
     private Song currentSong=null;
+    private boolean mState;
 
     public void setCurrentSong(Song currentSong) {
         this.currentSong = currentSong;
@@ -107,11 +113,9 @@ public class MainActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
         }
-
-
+        musicMiniOptionPlay.setOnClickListener(viewClistener);
         navViewTab.setNavigationItemSelectedListener(navItemSlistener);
         musicMiniPanel.setOnClickListener(viewClistener);
-
 
     }
 
@@ -170,16 +174,21 @@ public class MainActivity extends AppCompatActivity {
                 case R.id.music_mini_panel:
                     launchPlayActivity();
                     break;
+                case R.id.music_mini_option_play:
+                    PlayManager.getInstance(v.getContext()).dispatch(currentSong,"lalala");
+                    onPlayStateChange(PlayManager.getInstance(v.getContext()).isPlaying());
             }
         }
     };
 
     private void launchPlayActivity() {
         Intent intent = new Intent(this, PlayDetailActivity.class);
-
         intent.putExtra("image_art",currentSong.getAlbumId());
         intent.putExtra("music_title",currentSong.getTitle());
         intent.putExtra("artist_name",currentSong.getArtist());
+        Bundle bundle=new Bundle();
+        bundle.putSerializable("current_song",currentSong);//序列化
+        intent.putExtras(bundle);
         Pair ShareImage = new Pair<>(musicMiniThump, ViewCompat.getTransitionName(musicMiniThump));
         Pair ShareTextMusic = new Pair<>(mainMiniTitle, ViewCompat.getTransitionName(mainMiniTitle));
         Pair ShareTextArtist = new Pair<>(mainMiniArtistAlbum, ViewCompat.getTransitionName(mainMiniArtistAlbum));
@@ -188,6 +197,15 @@ public class MainActivity extends AppCompatActivity {
         ActivityCompat.startActivity(this,
                 intent, transitionActivityOptions.toBundle());
     }
+
+    public void onPlayStateChange(boolean state){
+        if (state) {
+            musicMiniOptionPlay.setBackgroundResource(R.drawable.ic_pause_pink_500_24dp);
+        } else {
+            musicMiniOptionPlay.setBackgroundResource(R.drawable.ic_play_arrow_pink_500_24dp);
+        }
+    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

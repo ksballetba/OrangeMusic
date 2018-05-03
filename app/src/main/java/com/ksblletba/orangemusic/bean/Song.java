@@ -3,11 +3,13 @@ package com.ksblletba.orangemusic.bean;
 import android.os.Bundle;
 import android.provider.MediaStore;
 
+import java.io.Serializable;
+
 /**
  * Created by Administrator on 2018/4/26.
  */
 
-public class Song {
+public class Song implements Serializable {
 
     private String title, titleKey, artist, artistKey,
             album, albumKey, displayName, mimeType, path;

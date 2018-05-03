@@ -2,10 +2,8 @@ package com.ksblletba.orangemusic.fragment;
 
 
 import android.Manifest;
-import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -14,16 +12,12 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.Toast;
-
 import com.ksblletba.orangemusic.MainActivity;
 import com.ksblletba.orangemusic.R;
-import com.ksblletba.orangemusic.adapter.AlbumListItemAdapter;
 import com.ksblletba.orangemusic.adapter.MusicListItemAdapter;
 import com.ksblletba.orangemusic.bean.MusicListItem;
 import com.ksblletba.orangemusic.bean.Song;
+import com.ksblletba.orangemusic.manager.PlayManager;
 import com.ksblletba.orangemusic.utils.MediaUtils;
 
 import java.util.ArrayList;
@@ -95,6 +89,9 @@ public class MusicListFragment extends Fragment {
                 Uri currentSongArt = MediaUtils.getAlbumArtUri(currentSong.getAlbumId());
                 ma.setMusicInfo(currentSongArt,currentSong.getTitle(),currentSong.getArtist());
                 ma.setCurrentSong(currentSong);
+                PlayManager pm = PlayManager.getInstance(getContext());
+                pm.dispatch(currentSong,"tick");
+                ma.onPlayStateChange(pm.isPlaying());
             }
 
             @Override

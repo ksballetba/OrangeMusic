@@ -9,6 +9,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -17,6 +18,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.ksblletba.orangemusic.bean.Song;
+import com.ksblletba.orangemusic.manager.PlayManager;
 import com.ksblletba.orangemusic.utils.MediaUtils;
 
 import butterknife.BindView;
@@ -48,6 +51,7 @@ public class PlayDetailActivity extends AppCompatActivity {
     TextView playDetailMusicTitle;
     @BindView(R.id.play_detail_artist_name)
     TextView playDetailArtistName;
+    private Song currentSong;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,11 +65,24 @@ public class PlayDetailActivity extends AppCompatActivity {
         setSupportActionBar(playDetailToolbar);
         setMusicInfo(getIntent().getIntExtra("image_art",0),getIntent().getStringExtra("music_title"),getIntent().getStringExtra("artist_name"));
         ActionBar actionBar = getSupportActionBar();
+        palyDetailPlay.setOnClickListener(viewOnClickListener);
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_expand_less_white_24dp);
         }
+        currentSong = (Song)getIntent().getSerializableExtra("current_song");
     }
+
+    private View.OnClickListener viewOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()){
+                case R.id.paly_detail_play:
+                    PlayManager.getInstance(v.getContext()).dispatch(currentSong,"hehehe");
+                    onPlayStateChange(PlayManager.getInstance(v.getContext()).isPlaying());
+            }
+        }
+    };
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -74,6 +91,14 @@ public class PlayDetailActivity extends AppCompatActivity {
                 finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onPlayStateChange(boolean state){
+        if (state) {
+            palyDetailPlay.setImageResource(R.drawable.ic_pause_white_24dp);
+        } else {
+            palyDetailPlay.setImageResource(R.drawable.ic_play_arrow_white_24dp);
+        }
     }
 
     public void setMusicInfo(int imageArt, String musicTitle, String artistName) {
