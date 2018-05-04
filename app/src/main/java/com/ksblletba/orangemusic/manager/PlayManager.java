@@ -4,6 +4,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.os.AsyncTask;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -11,6 +12,7 @@ import com.ksblletba.orangemusic.bean.Album;
 import com.ksblletba.orangemusic.bean.Song;
 import com.ksblletba.orangemusic.manager.ruler.Rule;
 import com.ksblletba.orangemusic.service.PlayService;
+import com.ksblletba.orangemusic.utils.MediaUtils;
 
 import java.util.List;
 
@@ -24,6 +26,8 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
 
     private static PlayManager sManager = null;
     private Context mContext;
+
+
     private Song mSong = null;
     private List<Album> mTotalAlbumList;
     private List<Song> mTotalList;
@@ -58,7 +62,10 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
             mService.setPlayStateChangeListener(PlayManager.this);
             Log.v(TAG, "onServiceConnected");
 //            startRemoteControl();
+            if (!isPlaying()) {
                 dispatch(mSong,"dispatch");
+            }
+
         }
 
         @Override
@@ -71,10 +78,14 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         }
     };
 
+
+
     public void dispatch(final Song song, String by) {
         Log.v(TAG, "dispatch BY=" + by);
         Log.v(TAG, "dispatch song=" + song);
         Log.v(TAG, "dispatch getAudioFocus mService=" + mService);
+        bindPlayService();
+        startPlayService();
 //        if (mCurrentList == null || mCurrentList.isEmpty() || song == null) {
 //            return;
 //        }
@@ -99,7 +110,7 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
             }
 
         } else {
-            Log.v(TAG, "dispatch mService == null");
+            Log.d("data", "dispatch mService == null");
             mSong = song;
             bindPlayService();
             startPlayService();
@@ -116,6 +127,11 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
     public void onShutdown() {
 
     }
+
+    public Song getCurrentSong() {
+        return mSong;
+    }
+
 
     public boolean isPlaying(){
         return mService!=null&&mService.isStarted();

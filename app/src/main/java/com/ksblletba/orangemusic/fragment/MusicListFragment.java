@@ -91,7 +91,7 @@ public class MusicListFragment extends Fragment {
                 ma.setCurrentSong(currentSong);
                 PlayManager pm = PlayManager.getInstance(getContext());
                 pm.dispatch(currentSong,"tick");
-                ma.onPlayStateChange(pm.isPlaying());
+                ma.onPlayStateChange(PlayManager.getInstance(getContext()).isPlaying());
             }
 
             @Override

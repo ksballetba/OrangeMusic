@@ -66,6 +66,7 @@ public class PlayDetailActivity extends AppCompatActivity {
         setMusicInfo(getIntent().getIntExtra("image_art",0),getIntent().getStringExtra("music_title"),getIntent().getStringExtra("artist_name"));
         ActionBar actionBar = getSupportActionBar();
         palyDetailPlay.setOnClickListener(viewOnClickListener);
+        onPlayStateChange(PlayManager.getInstance(this).isPlaying());
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_expand_less_white_24dp);

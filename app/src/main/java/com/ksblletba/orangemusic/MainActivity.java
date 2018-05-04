@@ -1,6 +1,8 @@
 package com.ksblletba.orangemusic;
 
+import android.content.SharedPreferences;
 import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.content.Intent;
 import android.os.Build;
@@ -21,6 +23,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -90,6 +93,8 @@ public class MainActivity extends AppCompatActivity{
     private AlbumListFragment albumListFragment = new AlbumListFragment();
     private Song currentSong=null;
     private boolean mState;
+    private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
 
     public void setCurrentSong(Song currentSong) {
         this.currentSong = currentSong;
@@ -117,6 +122,41 @@ public class MainActivity extends AppCompatActivity{
         navViewTab.setNavigationItemSelectedListener(navItemSlistener);
         musicMiniPanel.setOnClickListener(viewClistener);
 
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        onPlayStateChange(PlayManager.getInstance(this).isPlaying());
+        List<Song> songList = MediaUtils.getAudioList(this);
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
+        for (Song song : songList) {
+            if(song.getTitle().equals(pref.getString("song_name","")))
+                currentSong = song;
+        }
+        if(currentSong==null){
+            currentSong = songList.get(0);
+        }
+        Uri currentSongArt = MediaUtils.getAlbumArtUri(currentSong.getAlbumId());
+        setMusicInfo(currentSongArt,currentSong.getTitle(),currentSong.getArtist());
+
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent launcherIntent = new Intent(Intent.ACTION_MAIN);
+        launcherIntent.addCategory(Intent.CATEGORY_HOME);
+        startActivity(launcherIntent);
+    }
+
+    @Override
+    protected void onDestroy() {
+        editor = pref.edit();
+        editor.clear();
+        editor.putString("song_name",currentSong.getTitle());
+        Log.d("data","###"+currentSong.getTitle());
+        editor.apply();
+        super.onDestroy();
     }
 
     private NavigationView.OnNavigationItemSelectedListener navItemSlistener = new NavigationView.OnNavigationItemSelectedListener() {
@@ -176,6 +216,7 @@ public class MainActivity extends AppCompatActivity{
                     break;
                 case R.id.music_mini_option_play:
                     PlayManager.getInstance(v.getContext()).dispatch(currentSong,"lalala");
+                    Log.d("data", "onClick: "+PlayManager.getInstance(v.getContext()).isPlaying());
                     onPlayStateChange(PlayManager.getInstance(v.getContext()).isPlaying());
             }
         }
@@ -204,6 +245,10 @@ public class MainActivity extends AppCompatActivity{
         } else {
             musicMiniOptionPlay.setBackgroundResource(R.drawable.ic_play_arrow_pink_500_24dp);
         }
+    }
+
+    public void setPlayPauseBtn(int res){
+        musicMiniOptionPlay.setBackgroundResource(res);
     }
 
 
