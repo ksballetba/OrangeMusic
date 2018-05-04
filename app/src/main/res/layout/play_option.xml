@@ -12,7 +12,25 @@
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"/>
 
+    <RelativeLayout
+        android:layout_below="@id/play_detail_progressbar"
+        android:layout_width="280dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true">
 
+        <TextView
+            android:id="@+id/current_playtime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true" />
+        <TextView
+            android:id="@+id/sum_playtime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true" />
+
+
+    </RelativeLayout>
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -60,9 +78,6 @@
             android:layout_margin="15dp"/>
 
     </LinearLayout>
-
-
-
 
 
 </RelativeLayout>

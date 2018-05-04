@@ -1,5 +1,6 @@
 package com.ksblletba.orangemusic;
 
+import android.Manifest;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
@@ -47,10 +48,12 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import permissions.dispatcher.NeedsPermission;
+import permissions.dispatcher.RuntimePermissions;
 
-public class MainActivity extends AppCompatActivity{
 
-
+@RuntimePermissions
+public class MainActivity extends AppCompatActivity implements PlayManager.Callback{
     @BindView(R.id.main_tool_bar)
     Toolbar mainToolBar;
     @BindView(R.id.main_tab_layout)
@@ -92,6 +95,8 @@ public class MainActivity extends AppCompatActivity{
     private MusicListFragment musicListFragment = new MusicListFragment();
     private AlbumListFragment albumListFragment = new AlbumListFragment();
     private Song currentSong=null;
+    private List<Song> songList;
+    Uri currentSongArt;
     private boolean mState;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
@@ -109,8 +114,9 @@ public class MainActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        initViewPager();
-
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
+        MainActivityPermissionsDispatcher.initSongInifoWithPermissionCheck(this);
+        onPlayStateChange(PlayManager.getInstance(this).isPlaying());
         setSupportActionBar(mainToolBar);
         actionBar = getSupportActionBar();
         if (actionBar != null) {
@@ -118,6 +124,7 @@ public class MainActivity extends AppCompatActivity{
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_menu_white_24dp);
         }
+        onPlayStateChange(PlayManager.getInstance(this).isPlaying());
         musicMiniOptionPlay.setOnClickListener(viewClistener);
         navViewTab.setNavigationItemSelectedListener(navItemSlistener);
         musicMiniPanel.setOnClickListener(viewClistener);
@@ -127,19 +134,9 @@ public class MainActivity extends AppCompatActivity{
     @Override
     protected void onResume() {
         super.onResume();
+        PlayManager.getInstance(this).registerCallback(this);
+        setMusicInfo(currentSong);
         onPlayStateChange(PlayManager.getInstance(this).isPlaying());
-        List<Song> songList = MediaUtils.getAudioList(this);
-        pref = PreferenceManager.getDefaultSharedPreferences(this);
-        for (Song song : songList) {
-            if(song.getTitle().equals(pref.getString("song_name","")))
-                currentSong = song;
-        }
-        if(currentSong==null){
-            currentSong = songList.get(0);
-        }
-        Uri currentSongArt = MediaUtils.getAlbumArtUri(currentSong.getAlbumId());
-        setMusicInfo(currentSongArt,currentSong.getTitle(),currentSong.getArtist());
-
     }
 
     @Override
@@ -148,6 +145,13 @@ public class MainActivity extends AppCompatActivity{
         launcherIntent.addCategory(Intent.CATEGORY_HOME);
         startActivity(launcherIntent);
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        PlayManager.getInstance(this).unregisterCallback(this);
+    }
+
 
     @Override
     protected void onDestroy() {
@@ -188,6 +192,8 @@ public class MainActivity extends AppCompatActivity{
             return true;
         }
     };
+
+
     private void initViewPager(){
         fragmentList.add(musicListFragment);
         fragmentList.add(albumListFragment);
@@ -247,10 +253,6 @@ public class MainActivity extends AppCompatActivity{
         }
     }
 
-    public void setPlayPauseBtn(int res){
-        musicMiniOptionPlay.setBackgroundResource(res);
-    }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -261,9 +263,58 @@ public class MainActivity extends AppCompatActivity{
         return super.onOptionsItemSelected(item);
     }
 
-    public void setMusicInfo(Uri imageArt, String musicTitle, String artistName){
-        mainMiniTitle.setText(musicTitle);
-        mainMiniArtistAlbum.setText(artistName);
-        Glide.with(this).load(imageArt).into(musicMiniThump);
+    public void setMusicInfo(Song song){
+        mainMiniTitle.setText(song.getTitle());
+        mainMiniArtistAlbum.setText(song.getArtist());
+        Uri currentSongArt = MediaUtils.getAlbumArtUri(song.getAlbumId());
+        Glide.with(this).load(currentSongArt).into(musicMiniThump);
+    }
+
+    @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
+    void initSongInifo() {
+        initViewPager();
+        List<Song> songList = MediaUtils.getAudioList(this);
+        if(currentSong==null){
+            currentSong = songList.get(0);
+        }
+
+        for (Song song : songList) {
+            if(song.getTitle().equals(pref.getString("song_name","")))
+                currentSong = song;
+        }
+        setMusicInfo(currentSong);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
+    }
+
+    @Override
+    public void onPlayStateChanged(int state, Song song) {
+        switch (state){
+            case PlayService.STATE_INITIALIZED:
+                setMusicInfo(currentSong);
+                break;
+            case PlayService.STATE_STARTED:
+                onPlayStateChange(PlayManager.getInstance(this).isPlaying());
+                break;
+            case PlayService.STATE_PAUSED:
+                onPlayStateChange(PlayManager.getInstance(this).isPlaying());
+                break;
+            case PlayService.STATE_STOPPED:
+                onPlayStateChange(PlayManager.getInstance(this).isPlaying());
+                break;
+            case PlayService.STATE_COMPLETED:
+                onPlayStateChange(PlayManager.getInstance(this).isPlaying());
+                break;
+            case PlayService.STATE_RELEASED:
+                onPlayStateChange(PlayManager.getInstance(this).isPlaying());
+                break;
+            case PlayService.STATE_ERROR:
+                onPlayStateChange(PlayManager.getInstance(this).isPlaying());
+                break;
+        }
     }
 }

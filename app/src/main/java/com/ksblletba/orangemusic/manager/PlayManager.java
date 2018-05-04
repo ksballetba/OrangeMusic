@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.AsyncTask;
+import android.os.Handler;
 import android.os.IBinder;
 import android.util.Log;
 
@@ -14,6 +15,7 @@ import com.ksblletba.orangemusic.manager.ruler.Rule;
 import com.ksblletba.orangemusic.service.PlayService;
 import com.ksblletba.orangemusic.utils.MediaUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static android.content.ContentValues.TAG;
@@ -25,9 +27,10 @@ import static android.content.ContentValues.TAG;
 public class PlayManager implements PlayService.PlayStateChangeListener {
 
     private static PlayManager sManager = null;
+    private Handler mHandler;
     private Context mContext;
-
-
+    private List<Callback> mCallbacks;
+    private List<ProgressCallback> mProgressCallbacks;
     private Song mSong = null;
     private List<Album> mTotalAlbumList;
     private List<Song> mTotalList;
@@ -47,6 +50,9 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
 
     public PlayManager(Context context){
         mContext = context;
+        mCallbacks = new ArrayList<>();
+        mProgressCallbacks = new ArrayList<>();
+        mHandler = new Handler();
     }
 
     private void bindPlayService () {
@@ -118,14 +124,89 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
 
     }
 
+    private int mPeriod = 1000;
+    private boolean isProgressUpdating = false;
+    private Runnable mProgressRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (mCallbacks != null && !mCallbacks.isEmpty()
+                     && mSong != null) {
+                for (ProgressCallback callback : mProgressCallbacks) {
+                    callback.onProgress(mService.getPosition(), mSong.getDuration());
+                }
+                mHandler.postDelayed(this, mPeriod);
+                isProgressUpdating = true;
+            } else {
+                isProgressUpdating = false;
+            }
+        }
+    };
+
+    private void startUpdateProgressIfNeed () {
+        if (!isProgressUpdating) {
+            mHandler.post(mProgressRunnable);
+        }
+    }
+
+
+    public void registerProgressCallback (ProgressCallback callback) {
+        if (mProgressCallbacks.contains(callback)) {
+            return;
+        }
+        mProgressCallbacks.add(callback);
+        startUpdateProgressIfNeed();
+    }
+
+    public void unregisterProgressCallback (ProgressCallback callback) {
+        if (mProgressCallbacks.contains(callback)) {
+            mProgressCallbacks.remove(callback);
+        }
+    }
+
+    public void registerCallback (Callback callback) {
+        registerCallback(callback, false);
+    }
+
+    public void registerCallback (Callback callback, boolean updateOnceNow) {
+        if (mCallbacks.contains(callback)) {
+            return;
+        }
+        mCallbacks.add(callback);
+        if (updateOnceNow) {
+////            callback.onPlayListPrepared(mTotalList);
+////            callback.onPlayRuleChanged(mPlayRule);
+            callback.onPlayStateChanged(mState, mSong);
+        }
+    }
+
+    public void unregisterCallback (Callback callback) {
+        if (mCallbacks.contains(callback)) {
+            mCallbacks.remove(callback);
+        }
+    }
+
     @Override
     public void onStateChanged(int state) {
-
+        mState = state;
+        for (Callback callback : mCallbacks) {
+            callback.onPlayStateChanged(state,mSong);
+        }
     }
 
     @Override
     public void onShutdown() {
 
+    }
+
+    public void dispatch () {
+        dispatch(mSong, "dispatch ()");
+    }
+
+
+    public void seekTo(int position){
+        if (mService!=null) {
+            mService.seekTo(position);
+        }
     }
 
     public Song getCurrentSong() {

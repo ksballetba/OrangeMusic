@@ -35,8 +35,6 @@ import permissions.dispatcher.RuntimePermissions;
 @RuntimePermissions
 public class MusicListFragment extends Fragment {
 
-//    @BindView(R.id.music_listview)
-//    ListView musicListview;
     private MusicListItemAdapter adapter;
     private List<MusicListItem> musicListItemList = new ArrayList<>();
     private List<String> musicNameList = new ArrayList<>();
@@ -86,12 +84,9 @@ public class MusicListFragment extends Fragment {
             public void onItemClick(View view, int position) {
                 Song currentSong = songs.get(position);
                 MainActivity ma = (MainActivity) getActivity();
-                Uri currentSongArt = MediaUtils.getAlbumArtUri(currentSong.getAlbumId());
-                ma.setMusicInfo(currentSongArt,currentSong.getTitle(),currentSong.getArtist());
                 ma.setCurrentSong(currentSong);
                 PlayManager pm = PlayManager.getInstance(getContext());
                 pm.dispatch(currentSong,"tick");
-                ma.onPlayStateChange(PlayManager.getInstance(getContext()).isPlaying());
             }
 
             @Override
