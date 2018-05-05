@@ -12,6 +12,7 @@ import android.util.Log;
 import com.ksblletba.orangemusic.bean.Album;
 import com.ksblletba.orangemusic.bean.Song;
 import com.ksblletba.orangemusic.manager.ruler.Rule;
+import com.ksblletba.orangemusic.manager.ruler.Rulers;
 import com.ksblletba.orangemusic.service.PlayService;
 import com.ksblletba.orangemusic.utils.MediaUtils;
 
@@ -37,6 +38,7 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
     private List<Song> mCurrentList;
     private Album mCurrentAlbum;
     private int mState = PlayService.STATE_IDLE;
+    private Rule mPlayRule = Rulers.RULER_LIST_LOOP;
     private PlayService mService;
 
 
@@ -48,11 +50,13 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         return sManager;
     }
 
+
     public PlayManager(Context context){
         mContext = context;
         mCallbacks = new ArrayList<>();
         mProgressCallbacks = new ArrayList<>();
         mHandler = new Handler();
+        mCurrentList = MediaUtils.getAudioList(context);
     }
 
     private void bindPlayService () {
@@ -84,7 +88,9 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         }
     };
 
-
+    public boolean isService(){
+        return mService!=null;
+    }
 
     public void dispatch(final Song song, String by) {
         Log.v(TAG, "dispatch BY=" + by);
@@ -142,11 +148,24 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         }
     };
 
+
+
+    public Album getAlbum (int albumId) {
+        for (Album album : mTotalAlbumList) {
+            if (album.getId() == albumId) {
+                return album;
+            }
+        }
+        return null;
+    }
+
     private void startUpdateProgressIfNeed () {
         if (!isProgressUpdating) {
             mHandler.post(mProgressRunnable);
         }
     }
+
+
 
 
     public void registerProgressCallback (ProgressCallback callback) {
@@ -183,6 +202,37 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         if (mCallbacks.contains(callback)) {
             mCallbacks.remove(callback);
         }
+    }
+
+    public void next() {
+        next(true);
+    }
+
+    /**
+     * next song triggered by {@link #onStateChanged(int)} and {@link PlayService#STATE_COMPLETED}
+     * @param isUserAction
+     */
+    private void next(boolean isUserAction) {
+        dispatch(mPlayRule.next(mSong, mCurrentList, isUserAction), "next(boolean isUserAction)");
+    }
+
+    public Song getNextFirst(){
+        return mPlayRule.next(mSong,mCurrentList,true);
+    }
+
+    public Song getPreviousFirst(){
+        return mPlayRule.previous(mSong,mCurrentList,true);
+    }
+
+    /**
+     * previous song by user action
+     */
+    public void previous () {
+        previous(true);
+    }
+
+    private void previous (boolean isUserAction) {
+        dispatch(mPlayRule.previous(mSong, mCurrentList, isUserAction), "previous (boolean isUserAction)");
     }
 
     @Override
@@ -232,8 +282,8 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
 
 
     public interface Callback {
-//        void onPlayListPrepared (List<Song> songs);
-//        void onAlbumListPrepared (List<Album> albums);
+        void onPlayListPrepared (List<Song> songs);
+        void onAlbumListPrepared (List<Album> albums);
         void onPlayStateChanged (@PlayService.State int state, Song song);
 //        void onShutdown ();
 //        void onPlayRuleChanged (Rule rule);

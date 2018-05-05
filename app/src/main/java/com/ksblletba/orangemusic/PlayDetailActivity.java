@@ -1,14 +1,18 @@
 package com.ksblletba.orangemusic;
 
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -19,10 +23,13 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.ksblletba.orangemusic.bean.Album;
 import com.ksblletba.orangemusic.bean.Song;
 import com.ksblletba.orangemusic.manager.PlayManager;
 import com.ksblletba.orangemusic.service.PlayService;
 import com.ksblletba.orangemusic.utils.MediaUtils;
+
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -55,6 +62,8 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
     @BindView(R.id.sum_playtime)
     TextView sumPlaytime;
     private Song currentSong;
+    private SharedPreferences pref;
+    private SharedPreferences.Editor editor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,12 +74,13 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_detail);
         ButterKnife.bind(this);
-
+        pref = PreferenceManager.getDefaultSharedPreferences(this);
         palyDetailPlay.setOnClickListener(viewOnClickListener);
         onPlayStateChange(PlayManager.getInstance(this).isPlaying());
-
+        palyDetailNext.setOnClickListener(viewOnClickListener);
+        palyDetailPrevious.setOnClickListener(viewOnClickListener);
         playDetailProgressbar.setOnSeekBarChangeListener(seekBarChangeListener);
-        currentSong = (Song) getIntent().getSerializableExtra("current_song");
+        currentSong = PlayManager.getInstance(this).getCurrentSong();
         setMusicInfo(currentSong);
     }
 
@@ -79,11 +89,28 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.paly_detail_play:
-                    PlayManager.getInstance(v.getContext()).dispatch(currentSong,"dfadf");
+                    PlayManager.getInstance(v.getContext()).dispatch();
 //                    onPlayStateChange(PlayManager.getInstance(v.getContext()).isPlaying());
+                    break;
+                case R.id.paly_detail_next:
+                    PlayManager.getInstance(v.getContext()).next();
+                    break;
+                case R.id.paly_detail_previous:
+                    PlayManager.getInstance(v.getContext()).previous();
+                    break;
+
             }
         }
     };
+
+
+
+    private void saveCurrentSong(){
+        editor = pref.edit();
+        editor.clear();
+        editor.putString("song_name",currentSong.getTitle());
+        editor.apply();
+    }
 
     @Override
     protected void onResume() {
@@ -140,6 +167,7 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
         playDetailMusicTitle.setText(song.getTitle());
         playDetailArtistName.setText(song.getArtist());
         Glide.with(this).load(ART).into(playDetailImage);
+//        playDetailImage.setImageResource(R.drawable.music2);
     }
 
     @Override
@@ -173,7 +201,15 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
     }
 
 
+    @Override
+    public void onPlayListPrepared(List<Song> songs) {
 
+    }
+
+    @Override
+    public void onAlbumListPrepared(List<Album> albums) {
+
+    }
 
     @Override
     public void onProgress(int progress, int duration) {

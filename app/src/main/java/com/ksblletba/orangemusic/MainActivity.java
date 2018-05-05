@@ -35,6 +35,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.ksblletba.orangemusic.bean.Album;
 import com.ksblletba.orangemusic.bean.AlbumListItem;
 import com.ksblletba.orangemusic.bean.Song;
 import com.ksblletba.orangemusic.fragment.AlbumListFragment;
@@ -126,6 +127,8 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
         }
         onPlayStateChange(PlayManager.getInstance(this).isPlaying());
         musicMiniOptionPlay.setOnClickListener(viewClistener);
+        musicMiniOptionNext.setOnClickListener(viewClistener);
+        musicMiniOptionPrevious.setOnClickListener(viewClistener);
         navViewTab.setNavigationItemSelectedListener(navItemSlistener);
         musicMiniPanel.setOnClickListener(viewClistener);
 
@@ -134,6 +137,10 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
     @Override
     protected void onResume() {
         super.onResume();
+
+        if(PlayManager.getInstance(this).isService()){
+            currentSong = PlayManager.getInstance(this).getCurrentSong();
+        }
         PlayManager.getInstance(this).registerCallback(this);
         setMusicInfo(currentSong);
         onPlayStateChange(PlayManager.getInstance(this).isPlaying());
@@ -221,9 +228,20 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
                     launchPlayActivity();
                     break;
                 case R.id.music_mini_option_play:
-                    PlayManager.getInstance(v.getContext()).dispatch(currentSong,"lalala");
+                    if(PlayManager.getInstance(v.getContext()).isService())
+                        PlayManager.getInstance(v.getContext()).dispatch();
+                    else
+                        PlayManager.getInstance(v.getContext()).dispatch(currentSong,"fsaf");
                     Log.d("data", "onClick: "+PlayManager.getInstance(v.getContext()).isPlaying());
                     onPlayStateChange(PlayManager.getInstance(v.getContext()).isPlaying());
+                    break;
+                case R.id.music_mini_option_next:
+                    PlayManager.getInstance(v.getContext()).next();
+
+                    break;
+                case R.id.music_mini_option_previous:
+                    PlayManager.getInstance(v.getContext()).previous();
+                    break;
             }
         }
     };
@@ -234,15 +252,13 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
         intent.putExtra("music_title",currentSong.getTitle());
         intent.putExtra("artist_name",currentSong.getArtist());
         Bundle bundle=new Bundle();
-        bundle.putSerializable("current_song",currentSong);//序列化
+        bundle.putSerializable("current_song",currentSong);
         intent.putExtras(bundle);
         Pair ShareImage = new Pair<>(musicMiniThump, ViewCompat.getTransitionName(musicMiniThump));
         Pair ShareTextMusic = new Pair<>(mainMiniTitle, ViewCompat.getTransitionName(mainMiniTitle));
         Pair ShareTextArtist = new Pair<>(mainMiniArtistAlbum, ViewCompat.getTransitionName(mainMiniArtistAlbum));
-        ActivityOptionsCompat transitionActivityOptions =
-                ActivityOptionsCompat.makeSceneTransitionAnimation(this,ShareImage,ShareTextMusic,ShareTextArtist);
-        ActivityCompat.startActivity(this,
-                intent, transitionActivityOptions.toBundle());
+        ActivityOptionsCompat transitionActivityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(this,ShareImage,ShareTextMusic,ShareTextArtist);
+        ActivityCompat.startActivity(this, intent, transitionActivityOptions.toBundle());
     }
 
     public void onPlayStateChange(boolean state){
@@ -292,10 +308,20 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
     }
 
     @Override
+    public void onPlayListPrepared(List<Song> songs) {
+
+    }
+
+    @Override
+    public void onAlbumListPrepared(List<Album> albums) {
+
+    }
+
+    @Override
     public void onPlayStateChanged(int state, Song song) {
         switch (state){
             case PlayService.STATE_INITIALIZED:
-                setMusicInfo(currentSong);
+                setMusicInfo(song);
                 break;
             case PlayService.STATE_STARTED:
                 onPlayStateChange(PlayManager.getInstance(this).isPlaying());

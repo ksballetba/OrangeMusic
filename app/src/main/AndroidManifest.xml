@@ -29,6 +29,8 @@
             android:name=".PlayService"
             android:enabled="true"
             android:exported="true" />
+
+        <activity android:name=".PlayDetail2Activity"></activity>
     </application>
 
 </manifest>
