@@ -1,58 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.ksblletba.orangemusic.PlayDetailActivity">
 
+    <ImageView
+        android:id="@+id/play_detail_image"
+        android:layout_width="match_parent"
+        android:layout_height="420dp"
+        android:scaleType="centerCrop"
+        android:transitionName="album_image"
+        android:src="@drawable/music"/>
 
-        <ImageView
-            android:id="@+id/play_detail_image"
-            android:layout_width="match_parent"
-            android:layout_height="350dp"
-            android:scaleType="centerCrop"
-            android:layout_alignParentTop="true"
-            android:src="@drawable/music"
-            android:transitionName="album_image"
-            android:fitsSystemWindows="true"/>
+    <Button
+        android:id="@+id/play_detail_backbutton"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:background="@drawable/ic_keyboard_arrow_down_white_24dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginTop="20dp"/>
 
+    <RelativeLayout
+        android:id="@+id/paly_detail_musicinfo"
+        android:layout_below="@id/play_detail_image"
+        android:layout_width="300dp"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="30dp">
 
-        <RelativeLayout
-            android:id="@+id/paly_detail_musicinfo"
-            android:layout_below="@id/play_detail_image"
-            android:layout_width="300dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="30dp">
+            android:orientation="vertical">
 
-            <LinearLayout
+            <TextView
+                android:id="@+id/play_detail_music_title"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="vertical">
+                android:text="如风过境"
+                android:textSize="25sp"
+                android:textColor="@color/primary_text"
+                android:transitionName="music_name"/>
 
-                <TextView
-                    android:id="@+id/play_detail_music_title"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="如风过境"
-                    android:textSize="25sp"
-                    android:textColor="@color/primary_text"
-                    android:transitionName="music_name"/>
-                <TextView
-                    android:id="@+id/play_detail_artist_name"
-                    android:layout_marginTop="10dp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:text="哎哟蔚蔚"
-                    android:textSize="20sp"
-                    android:textColor="@color/secondary_text"
-                    android:transitionName="artist_name"/>
-           </LinearLayout>
+            <TextView
+                android:id="@+id/play_detail_artist_name"
+                android:layout_marginTop="10dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="哎哟蔚蔚"
+                android:textSize="20sp"
+                android:textColor="@color/secondary_text"
+                android:transitionName="artist_name"/>
 
-        </RelativeLayout>
+       </LinearLayout>
+
+    </RelativeLayout>
 
     <include layout="@layout/play_option"
         android:id="@+id/play_detail_option"/>

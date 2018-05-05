@@ -1,19 +1,12 @@
 package com.ksblletba.orangemusic;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -61,6 +54,8 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
     TextView currentPlaytime;
     @BindView(R.id.sum_playtime)
     TextView sumPlaytime;
+    @BindView(R.id.play_detail_backbutton)
+    Button playDetailBackbutton;
     private Song currentSong;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
@@ -80,7 +75,12 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
         palyDetailNext.setOnClickListener(viewOnClickListener);
         palyDetailPrevious.setOnClickListener(viewOnClickListener);
         playDetailProgressbar.setOnSeekBarChangeListener(seekBarChangeListener);
-        currentSong = PlayManager.getInstance(this).getCurrentSong();
+        palyDetailMuscilist.setOnClickListener(viewOnClickListener);
+        playDetailBackbutton.setOnClickListener(viewOnClickListener);
+        if (PlayManager.getInstance(this).isService()) {
+            currentSong = PlayManager.getInstance(this).getCurrentSong();
+        } else currentSong = (Song) getIntent().getSerializableExtra("current_song");
+
         setMusicInfo(currentSong);
     }
 
@@ -89,8 +89,10 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
         public void onClick(View v) {
             switch (v.getId()) {
                 case R.id.paly_detail_play:
-                    PlayManager.getInstance(v.getContext()).dispatch();
-//                    onPlayStateChange(PlayManager.getInstance(v.getContext()).isPlaying());
+                    if (PlayManager.getInstance(v.getContext()).isService()) {
+                        PlayManager.getInstance(v.getContext()).dispatch();
+                    } else
+                        PlayManager.getInstance(v.getContext()).dispatch(currentSong, "fasd");
                     break;
                 case R.id.paly_detail_next:
                     PlayManager.getInstance(v.getContext()).next();
@@ -98,19 +100,15 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
                 case R.id.paly_detail_previous:
                     PlayManager.getInstance(v.getContext()).previous();
                     break;
+                case R.id.paly_detail_muscilist:
+                    break;
+                case R.id.play_detail_backbutton:
+                    onBackPressed();
 
             }
         }
     };
 
-
-
-    private void saveCurrentSong(){
-        editor = pref.edit();
-        editor.clear();
-        editor.putString("song_name",currentSong.getTitle());
-        editor.apply();
-    }
 
     @Override
     protected void onResume() {
@@ -139,7 +137,7 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
     private SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
         @Override
         public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-             currentPlaytime.setText(MediaUtils.formatTime(progress));
+            currentPlaytime.setText(MediaUtils.formatTime(progress));
         }
 
         @Override

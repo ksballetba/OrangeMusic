@@ -75,9 +75,6 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
     LinearLayout musicMiniInfo;
     @BindView(R.id.music_mini_option_previous)
     Button musicMiniOptionPrevious;
-
-
-
     @BindView(R.id.music_mini_option_play)
     Button musicMiniOptionPlay;
     @BindView(R.id.music_mini_option_next)
@@ -97,8 +94,6 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
     private AlbumListFragment albumListFragment = new AlbumListFragment();
     private Song currentSong=null;
     private List<Song> songList;
-    Uri currentSongArt;
-    private boolean mState;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
 
@@ -109,7 +104,6 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-            //透明状态栏
             getWindow().addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
         }
         super.onCreate(savedInstanceState);
@@ -137,7 +131,6 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
     @Override
     protected void onResume() {
         super.onResume();
-
         if(PlayManager.getInstance(this).isService()){
             currentSong = PlayManager.getInstance(this).getCurrentSong();
         }
@@ -248,11 +241,9 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
 
     private void launchPlayActivity() {
         Intent intent = new Intent(this, PlayDetailActivity.class);
-        intent.putExtra("image_art",currentSong.getAlbumId());
-        intent.putExtra("music_title",currentSong.getTitle());
-        intent.putExtra("artist_name",currentSong.getArtist());
         Bundle bundle=new Bundle();
         bundle.putSerializable("current_song",currentSong);
+        Log.d("data", "launchPlayActivity: "+currentSong);
         intent.putExtras(bundle);
         Pair ShareImage = new Pair<>(musicMiniThump, ViewCompat.getTransitionName(musicMiniThump));
         Pair ShareTextMusic = new Pair<>(mainMiniTitle, ViewCompat.getTransitionName(mainMiniTitle));

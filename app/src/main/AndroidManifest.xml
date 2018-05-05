@@ -30,7 +30,7 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".PlayDetail2Activity"></activity>
+        <activity android:name=".PlayDetail2Activity" />
     </application>
 
 </manifest>
