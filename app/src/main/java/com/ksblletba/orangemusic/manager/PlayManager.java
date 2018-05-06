@@ -7,6 +7,7 @@ import android.content.ServiceConnection;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.ksblletba.orangemusic.bean.Album;
@@ -35,6 +36,9 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
     private Song mSong = null;
     private List<Album> mTotalAlbumList;
     private List<Song> mTotalList;
+
+
+
     private List<Song> mCurrentList;
     private Album mCurrentAlbum;
     private int mState = PlayService.STATE_IDLE;
@@ -56,7 +60,10 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         mCallbacks = new ArrayList<>();
         mProgressCallbacks = new ArrayList<>();
         mHandler = new Handler();
-        mCurrentList = MediaUtils.getAudioList(context);
+    }
+
+    public void setmCurrentList(List<Song> mCurrentList) {
+        this.mCurrentList = mCurrentList;
     }
 
     private void bindPlayService () {
@@ -238,6 +245,11 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
     @Override
     public void onStateChanged(int state) {
         mState = state;
+        switch (state) {
+            case PlayService.STATE_COMPLETED:
+                next(false);
+                break;
+        }
         for (Callback callback : mCallbacks) {
             callback.onPlayStateChanged(state,mSong);
         }
@@ -246,6 +258,10 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
     @Override
     public void onShutdown() {
 
+    }
+
+    public List<Song> getmCurrentList() {
+        return mCurrentList;
     }
 
     public void dispatch () {
@@ -286,8 +302,24 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         void onAlbumListPrepared (List<Album> albums);
         void onPlayStateChanged (@PlayService.State int state, Song song);
 //        void onShutdown ();
-//        void onPlayRuleChanged (Rule rule);
+        void onPlayRuleChanged (Rule rule);
     }
+
+    public void setRule (@NonNull Rule rule) {
+        mPlayRule = rule;
+        for (Callback callback : mCallbacks) {
+            callback.onPlayRuleChanged(mPlayRule);
+        }
+    }
+
+    /**
+     *
+     * @return the current {@link Rule}
+     */
+    public Rule getRule () {
+        return mPlayRule;
+    }
+
 
     public interface ProgressCallback {
         void onProgress (int progress, int duration);

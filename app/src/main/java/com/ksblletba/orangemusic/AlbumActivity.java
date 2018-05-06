@@ -1,6 +1,7 @@
 package com.ksblletba.orangemusic;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
@@ -15,6 +16,7 @@ import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.ImageView;
 
@@ -24,6 +26,7 @@ import com.ksblletba.orangemusic.adapter.MusicListItemAdapter;
 import com.ksblletba.orangemusic.bean.Album;
 import com.ksblletba.orangemusic.bean.MusicListItem;
 import com.ksblletba.orangemusic.bean.Song;
+import com.ksblletba.orangemusic.manager.PlayManager;
 import com.ksblletba.orangemusic.utils.MediaUtils;
 
 import java.util.ArrayList;
@@ -50,6 +53,7 @@ public class AlbumActivity extends AppCompatActivity {
     private ActionBar actionBar;
     private List<MusicListItem> albumSongList = new ArrayList<>();
     private MusicListItemAdapter adapter;
+    private List<Song> albumSongs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +69,7 @@ public class AlbumActivity extends AppCompatActivity {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setHomeAsUpIndicator(R.drawable.ic_arrow_back_white_24dp);
         }
+        albumFab.setOnClickListener(viewOnClickListener);
         AlbumActivityPermissionsDispatcher.initAlbumSongListWithPermissionCheck(this);
         ablumToolbarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
             @Override
@@ -72,8 +77,21 @@ public class AlbumActivity extends AppCompatActivity {
                 ablumToolbarLayout.setEnabled(verticalOffset >= 0 ? true : false);
             }
         });
-
     }
+
+    private View.OnClickListener viewOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+            switch (v.getId()) {
+                case R.id.album_fab:
+                    Song song = albumSongs.get(0);
+                    PlayManager.getInstance(v.getContext()).dispatch(song,"fsgd");
+                    Intent intent = new Intent(AlbumActivity.this,PlayDetailActivity.class);
+                    startActivity(intent);
+                    break;
+            }
+        }
+    };
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -93,7 +111,7 @@ public class AlbumActivity extends AppCompatActivity {
         String albumArt = pref.getString("album_art",null);
         String albumName = pref.getString("album_name",null);
         int albumId = pref.getInt("album_id",0);
-        List<Song> albumSongs = MediaUtils.getAlbumSongList(this,albumId);
+        albumSongs = MediaUtils.getAlbumSongList(this,albumId);
         for (Song song : albumSongs) {
             Uri albumMiniArt = MediaUtils.getAlbumArtUri(song.getAlbumId());
             albumSongList.add(new MusicListItem(song.getTitle(),albumMiniArt,song.getArtist()));
@@ -103,6 +121,20 @@ public class AlbumActivity extends AppCompatActivity {
         ablumSongListView.setLayoutManager(layoutManager);
         ablumSongListView.setAdapter(adapter);
         actionBar.setTitle(albumName);
+        adapter.setOnItemClickListener(new MusicListItemAdapter.OnItemClickListener() {
+            @Override
+            public void onItemClick(View view, int position) {
+                Song song = albumSongs.get(position);
+                PlayManager.getInstance(view.getContext()).dispatch(song,"fdsa");
+                Intent intent = new Intent(AlbumActivity.this,PlayDetailActivity.class);
+                startActivity(intent);
+            }
+
+            @Override
+            public void onItemLongClick(View view, int position) {
+
+            }
+        });
         Glide.with(this).load(albumArt).into(albumActImage);
     }
 

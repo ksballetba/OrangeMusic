@@ -5,8 +5,12 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.BottomSheetDialog;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -16,12 +20,17 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.ksblletba.orangemusic.adapter.MusicListItemAdapter;
 import com.ksblletba.orangemusic.bean.Album;
+import com.ksblletba.orangemusic.bean.MusicListItem;
 import com.ksblletba.orangemusic.bean.Song;
 import com.ksblletba.orangemusic.manager.PlayManager;
+import com.ksblletba.orangemusic.manager.ruler.Rule;
+import com.ksblletba.orangemusic.manager.ruler.Rulers;
 import com.ksblletba.orangemusic.service.PlayService;
 import com.ksblletba.orangemusic.utils.MediaUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
@@ -34,8 +43,8 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
     ImageView playDetailImage;
     @BindView(R.id.paly_detail_musicinfo)
     RelativeLayout palyDetailMusicinfo;
-    @BindView(R.id.play_detail_fav)
-    Button playDetailFav;
+    @BindView(R.id.play_detail_rule)
+    Button playDetailRule;
     @BindView(R.id.paly_detail_previous)
     Button palyDetailPrevious;
     @BindView(R.id.paly_detail_next)
@@ -60,6 +69,7 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
@@ -77,12 +87,15 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
         playDetailProgressbar.setOnSeekBarChangeListener(seekBarChangeListener);
         palyDetailMuscilist.setOnClickListener(viewOnClickListener);
         playDetailBackbutton.setOnClickListener(viewOnClickListener);
+        playDetailRule.setOnClickListener(viewOnClickListener);
         if (PlayManager.getInstance(this).isService()) {
             currentSong = PlayManager.getInstance(this).getCurrentSong();
         } else currentSong = (Song) getIntent().getSerializableExtra("current_song");
 
         setMusicInfo(currentSong);
     }
+
+
 
     private View.OnClickListener viewOnClickListener = new View.OnClickListener() {
         @Override
@@ -101,17 +114,45 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
                     PlayManager.getInstance(v.getContext()).previous();
                     break;
                 case R.id.paly_detail_muscilist:
+                    showQuickList();
                     break;
                 case R.id.play_detail_backbutton:
                     onBackPressed();
-
+                    break;
+                case R.id.play_detail_rule:
+                    PlayManager pm = PlayManager.getInstance(v.getContext());
+                    Rule rule = pm.getRule();
+                    if (rule == Rulers.RULER_LIST_LOOP) {
+                        pm.setRule(Rulers.RULER_SINGLE_LOOP);
+                    } else if (rule == Rulers.RULER_SINGLE_LOOP) {
+                        pm.setRule(Rulers.RULER_RANDOM);
+                    } else if(rule == Rulers.RULER_RANDOM){
+                        pm.setRule(Rulers.RULER_LIST_LOOP);
+                    }
             }
         }
     };
 
+    private void setRule(String nowRuleState){
+        PlayManager pm = PlayManager.getInstance(this);
+       if(nowRuleState.equals("list_loop")){
+           pm.setRule(Rulers.RULER_LIST_LOOP);
+           playDetailRule.setBackgroundResource(R.drawable.ic_repeat_black_24dp);
+       } else if(nowRuleState.equals("single_loop")){
+           pm.setRule(Rulers.RULER_SINGLE_LOOP);
+           playDetailRule.setBackgroundResource(R.drawable.ic_repeat_one_black_24dp);
+       } else if(nowRuleState.equals("random")){
+           pm.setRule(Rulers.RULER_RANDOM);
+           playDetailRule.setBackgroundResource(R.drawable.ic_shuffle_black_24dp);
+       }
+    }
+
 
     @Override
     protected void onResume() {
+        String nowRuleState = pref.getString("rule_state","list_loop");
+        Log.d("data", "++"+nowRuleState);
+        setRule(nowRuleState);
         super.onResume();
         PlayManager.getInstance(this).registerCallback(this);
         PlayManager.getInstance(this).registerProgressCallback(this);
@@ -124,14 +165,6 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
         PlayManager.getInstance(this).unregisterProgressCallback(this);
     }
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case android.R.id.home:
-//                finish();
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
 
     private boolean isSeeking = false;
     private SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
@@ -157,6 +190,37 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
             palyDetailPlay.setImageResource(R.drawable.ic_pause_white_24dp);
         } else {
             palyDetailPlay.setImageResource(R.drawable.ic_play_arrow_white_24dp);
+        }
+    }
+
+    private void showQuickList () {
+        final List<Song> songs = PlayManager.getInstance(this).getmCurrentList();
+        if (songs != null && !songs.isEmpty()) {
+            final BottomSheetDialog dialog = new BottomSheetDialog(this);
+            RecyclerView rv = new RecyclerView(this);
+            rv.setLayoutManager(new LinearLayoutManager(this));
+            List<MusicListItem> musicListItems = new ArrayList<>();
+            for (Song song : songs) {
+                Uri art = MediaUtils.getAlbumArtUri(song.getAlbumId());
+                musicListItems.add(new MusicListItem(song.getTitle(),art,song.getArtist()));
+            }
+            MusicListItemAdapter adapter = new MusicListItemAdapter(musicListItems);
+            rv.setAdapter(adapter);
+            adapter.setOnItemClickListener(new MusicListItemAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(View view, int position) {
+                    Song song = songs.get(position);
+                    PlayManager.getInstance(view.getContext()).dispatch(song,"dd");
+                    dialog.dismiss();
+                }
+
+                @Override
+                public void onItemLongClick(View view, int position) {
+
+                }
+            });
+            dialog.setContentView(rv);
+            dialog.show();
         }
     }
 
@@ -207,6 +271,27 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
     @Override
     public void onAlbumListPrepared(List<Album> albums) {
 
+    }
+
+    @Override
+    public void onPlayRuleChanged(Rule rule) {
+        editor = pref.edit();
+        String ruleState = "list_loop";
+        if(rule == Rulers.RULER_LIST_LOOP){
+            playDetailRule.setBackgroundResource(R.drawable.ic_repeat_black_24dp);
+            ruleState = "list_loop";
+
+        } else if(rule == Rulers.RULER_SINGLE_LOOP){
+            playDetailRule.setBackgroundResource(R.drawable.ic_repeat_one_black_24dp);
+            ruleState = "single_loop";
+
+        } else if(rule == Rulers.RULER_RANDOM){
+            playDetailRule.setBackgroundResource(R.drawable.ic_shuffle_black_24dp);
+            ruleState = "random";
+        }
+
+        editor.putString("rule_state",ruleState);
+        editor.apply();
     }
 
     @Override

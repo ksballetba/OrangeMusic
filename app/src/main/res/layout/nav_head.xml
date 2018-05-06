@@ -1,14 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/nav_head"
     android:layout_width="match_parent"
-    android:layout_height="180dp"
-    android:fitsSystemWindows="true"
-    android:background="@drawable/material_design_3">
+    android:layout_height="250dp">
 
-    <!--<ImageView-->
-        <!--android:id="@+id/music_album_image"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="match_parent"-->s
-        <!--android:src="@drawable/material_design_3"/>-->
 
-</RelativeLayout>
+    <ImageView
+        android:id="@+id/nav_headimage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:src="@drawable/music"/>
+
+    <TextView
+        android:id="@+id/nav_headsongname"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/primary_text"
+        android:textSize="20sp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="180dp"/>
+
+    <TextView
+        android:id="@+id/nav_headartist"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/primary_text"
+        android:textSize="15sp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginTop="210dp"/>
+
+
+</android.support.design.widget.CoordinatorLayout>
