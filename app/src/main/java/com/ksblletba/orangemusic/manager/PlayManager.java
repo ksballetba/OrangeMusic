@@ -4,19 +4,24 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.AudioManager;
+import android.media.MediaPlayer;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.ksblletba.orangemusic.bean.Album;
+import com.ksblletba.orangemusic.bean.NetworkSong;
 import com.ksblletba.orangemusic.bean.Song;
 import com.ksblletba.orangemusic.manager.ruler.Rule;
 import com.ksblletba.orangemusic.manager.ruler.Rulers;
 import com.ksblletba.orangemusic.service.PlayService;
 import com.ksblletba.orangemusic.utils.MediaUtils;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -36,9 +41,6 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
     private Song mSong = null;
     private List<Album> mTotalAlbumList;
     private List<Song> mTotalList;
-
-
-
     private List<Song> mCurrentList;
     private Album mCurrentAlbum;
     private int mState = PlayService.STATE_IDLE;
@@ -70,6 +72,9 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         mContext.bindService(new Intent(mContext, PlayService.class), mConnection, Context.BIND_AUTO_CREATE);
     }
     private void startPlayService () {
+        if(Build.VERSION.SDK_INT>Build.VERSION_CODES.N_MR1){
+            mContext.startForegroundService(new Intent(mContext,PlayService.class));
+        }
         mContext.startService(new Intent(mContext, PlayService.class));
     }
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -79,9 +84,9 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
             mService.setPlayStateChangeListener(PlayManager.this);
             Log.v(TAG, "onServiceConnected");
 //            startRemoteControl();
-            if (!isPlaying()) {
-                dispatch(mSong,"dispatch");
-            }
+//            if (!isPlaying()) {
+//                dispatch(mSong,"dispatch");
+//            }
 
         }
 
@@ -131,6 +136,18 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         } else {
             Log.d("data", "dispatch mService == null");
             mSong = song;
+            bindPlayService();
+            startPlayService();
+        }
+
+    }
+
+    public void playNetSong(String adress){
+        if (mService != null) {
+            mService.releasePlayer();
+            mService.startPlayerNet(adress);
+
+        } else {
             bindPlayService();
             startPlayService();
         }

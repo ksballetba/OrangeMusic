@@ -2,6 +2,7 @@ package com.ksblletba.orangemusic.service;
 
 import android.app.Service;
 import android.content.Intent;
+import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Binder;
 import android.os.IBinder;
@@ -130,6 +131,23 @@ public class PlayService extends Service implements MediaPlayer.OnInfoListener,
         } catch (IOException e) {
             e.printStackTrace();
             releasePlayer();
+        }
+    }
+
+    public void startPlayerNet(String url) {
+        ensurePlayer();
+        try {
+            Log.d("data", "startPlayerNet: "+url);
+//            MediaPlayer mediaPlayer = new MediaPlayer();
+            mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mPlayer.setDataSource(url);
+            setPlayerState(STATE_INITIALIZED);
+            mPlayer.prepareAsync();
+            setPlayerState(STATE_PREPARING);
+//You can show progress dialog here untill it prepared to play
+        }catch (IOException e){
+            releasePlayer();
+            Log.d("data", "playNetSong: bad");
         }
     }
 

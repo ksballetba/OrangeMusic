@@ -3,6 +3,7 @@ package com.ksblletba.orangemusic;
 import android.Manifest;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -183,32 +184,30 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.toolbar_menu, menu);
-        MenuItem searchItem = menu.findItem(R.id.search_btn);
+        final MenuItem searchItem = menu.findItem(R.id.search_btn);
         //通过MenuItem得到SearchView
         searchView = (SearchView) searchItem.getActionView();
         searchView.setQueryHint("发现好音乐");
         searchView.setMaxWidth(Integer.MAX_VALUE);
-        searchView.setOnQueryTextListener(onQueryTextListener);
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                Intent intent =  new Intent(MainActivity.this,SearchActivity.class);
+                intent.putExtra("search_key",query);
+                startActivity(intent);
+                searchItem.collapseActionView();
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return false;
+            }
+        });
         LinearLayout searchViewFrame = (LinearLayout) searchView.findViewById(R.id.search_edit_frame);
         ((LinearLayout.LayoutParams)searchViewFrame.getLayoutParams()).leftMargin=0;
         return super.onCreateOptionsMenu(menu);
-
     }
-
-    private SearchView.OnQueryTextListener onQueryTextListener = new SearchView.OnQueryTextListener() {
-        @Override
-        public boolean onQueryTextSubmit(String query) {
-            Intent intent =  new Intent(MainActivity.this,SearchActivity.class);
-            intent.putExtra("search_key",query);
-            startActivity(intent);
-            return true;
-        }
-
-        @Override
-        public boolean onQueryTextChange(String newText) {
-            return false;
-        }
-    };
 
 
     //
@@ -278,9 +277,11 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
                     onPlayStateChange(PlayManager.getInstance(v.getContext()).isPlaying());
                     break;
                 case R.id.music_mini_option_next:
-//                    PlayManager.getInstance(v.getContext()).next();
+                    PlayManager.getInstance(v.getContext()).next();
 //                    Log.d("data", "###"+);
-                    getNetWorkSongId(currentSong.getDisplayName());
+//                    getNetWorkSongId(currentSong.getDisplayName());
+//                    demoPlay();
+//                      PlayManager.getInstance(v.getContext()).playNetSong("https://m7.music.126.net/20180508192751/8996a24ba7929796f561783e6d9f4df6/ymusic/fa90/df9c/59f7/95c4a2802e0b9191ae1a048f127e53c5.mp3");
                     break;
                 case R.id.music_mini_option_previous:
                     PlayManager.getInstance(v.getContext()).previous();
@@ -394,28 +395,9 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
         }
     }
 
-
-    void getNetWorkSongId(String songName) {
-        String Url = "https://v1.hitokoto.cn/nm/search/" + songName + "?type=SONG";
-        HttpUtils.sendOkHttpRequest(Url, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                final String responseText = response.body().string();
-
-
-                List<NetworkSong> netWorkSongs = NetWorkUtil.getNetWorkSong(responseText);
-                final NetworkSong demo = netWorkSongs.get(0);
-                Log.d("data", "onResponse: " + demo.getSongid());
-                Log.d("data", "onResponse: " + demo.getName());
-
-
-            }
-        });
+    public void demo(){
 
     }
+
+
 }

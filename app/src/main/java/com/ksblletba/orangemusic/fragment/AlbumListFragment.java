@@ -69,7 +69,6 @@ public class AlbumListFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_album_list, container, false);
         albumRecyclerview = view.findViewById(R.id.album_recyclerview);
         linearLayout = view.findViewById(R.id.album_bg);
-//        initViewPager();
         AlbumListFragmentPermissionsDispatcher.initViewWithPermissionCheck(this);
         unbinder = ButterKnife.bind(this, view);
         return view;

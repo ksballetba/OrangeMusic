@@ -9,6 +9,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.SearchView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,7 @@ import com.ksblletba.orangemusic.bean.MusicListItem;
 import com.ksblletba.orangemusic.bean.NetworkSong;
 import com.ksblletba.orangemusic.bean.Song;
 import com.ksblletba.orangemusic.manager.PlayManager;
+import com.ksblletba.orangemusic.service.PlayService;
 import com.ksblletba.orangemusic.utils.HttpUtils;
 import com.ksblletba.orangemusic.utils.MediaUtils;
 import com.ksblletba.orangemusic.utils.NetWorkUtil;
@@ -50,7 +52,8 @@ public class MusicListFragment extends Fragment {
     public static String SEARCH_FOREURL="https://v1.hitokoto.cn/nm/search/";
     public static String SEARCH_TYPEURL="?type=";
     public static String SEARCH_LIMITURL="&offset=0&limit=1";
-
+    private SearchView searchView;
+    private String searchKey;
 
     @BindView(R.id.music_recyclerview)
     RecyclerView musicRecyclerview;
@@ -73,6 +76,22 @@ public class MusicListFragment extends Fragment {
         unbinder = ButterKnife.bind(this, view);
         return view;
     }
+
+    private SearchView.OnQueryTextListener onQueryTextListener = new SearchView.OnQueryTextListener() {
+        @Override
+        public boolean onQueryTextSubmit(String query) {
+            searchKey = query;
+            Log.d("data", "onQueryTextSubmit: "+searchKey);
+            musicListItemList.clear();
+            getNetWorkSongs(searchKey);
+            return false;
+        }
+
+        @Override
+        public boolean onQueryTextChange(String newText) {
+            return false;
+        }
+    };
 
     @Override
     public void onDestroyView() {
@@ -110,18 +129,27 @@ public class MusicListFragment extends Fragment {
             });
             musicRecyclerview.setAdapter(adapter);
         } else if(getActivity()instanceof SearchActivity){
-//            initSearchList((((SearchActivity) getActivity())).getSearchKey());
+            searchView = getActivity().findViewById(R.id.search_view);
+            searchView.setOnQueryTextListener(onQueryTextListener);
             SwipeRefreshLayout swipeRefreshLayout = getActivity().findViewById(R.id.swipe_refresh);
-            swipeRefreshLayout.setRefreshing(true);
-            getNetWorkSongId("海阔天空");
+            swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+                @Override
+                public void onRefresh() {
+                    getNetWorkSongs(searchKey);
+                }
+            });
+            searchKey = ((SearchActivity) getActivity()).getSearchKey();
+            getNetWorkSongs(searchKey);
         }
 
     }
 
-    private void initSearchList(String key){
-        String searchAdress = "https://v1.hitokoto.cn/nm/search/?t海阔天空ype=SONG&offset=0&limit=10";
 
-        HttpUtils.sendOkHttpRequest(searchAdress, new Callback() {
+    private void getNetWorkSongs(String songName) {
+        SwipeRefreshLayout swipeRefreshLayout = getActivity().findViewById(R.id.swipe_refresh);
+        swipeRefreshLayout.setRefreshing(true);
+        String Url = "http://music.163.com/api/search/pc/?type=1&s="+songName+"&offset=0&limit=10";
+        HttpUtils.sendOkHttpRequestbyPost(Url, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
                 e.printStackTrace();
@@ -130,46 +158,13 @@ public class MusicListFragment extends Fragment {
             @Override
             public void onResponse(Call call, Response response) throws IOException {
                 final String responseText = response.body().string();
-                List<NetworkSong> networkSongs=NetWorkUtil.getNetWorkSong(responseText);
-                for (NetworkSong networkSong : networkSongs) {
-                    musicListItemList.add(new MusicListItem(networkSong.getName()," ",networkSong.getArtists().get(0).getName()));
-                    Log.d("data", "###"+networkSong.getName());
-                }
-//                getActivity().runOnUiThread(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        GridLayoutManager linearLayoutManager = new GridLayoutManager(getActivity(), 1);
-//                        musicRecyclerview.setLayoutManager(linearLayoutManager);
-//                        adapter = new MusicListItemAdapter(musicListItemList);
-//                        musicRecyclerview.setAdapter(adapter);
-//                    }
-//                });
-
-            }
-        });
-
-
-    }
-
-    void getNetWorkSongId(String songName) {
-        String Url = "https://v1.hitokoto.cn/nm/search/" + songName + "?type=SONG&offset=0&limit=10";
-        HttpUtils.sendOkHttpRequest(Url, new Callback() {
-            @Override
-            public void onFailure(Call call, IOException e) {
-                e.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                final String responseText = response.body().string();
-
-
-                List<NetworkSong> netWorkSongs = NetWorkUtil.getNetWorkSong(responseText);
+                final List<NetworkSong> netWorkSongs = NetWorkUtil.getNetWorkSong(responseText);
                 final NetworkSong demo = netWorkSongs.get(0);
-                Log.d("data", "onResponse: " + demo.getSongid());
+                Log.d("data", "onResponse: " + demo.getSongId());
                 Log.d("data", "onResponse: " + demo.getName());
                 for (NetworkSong netWorkSong : netWorkSongs) {
-                    musicListItemList.add(new MusicListItem(netWorkSong.getName()," ",netWorkSong.getArtists().get(0).getName()));
+                    String picURL = netWorkSong.getAlbum().getPicUrl();
+                    musicListItemList.add(new MusicListItem(netWorkSong.getName(),picURL,netWorkSong.getArtists().get(0).getName()));
                 }
 
                 getActivity().runOnUiThread(new Runnable() {
@@ -179,6 +174,31 @@ public class MusicListFragment extends Fragment {
                         musicRecyclerview.setLayoutManager(linearLayoutManager);
                         adapter = new MusicListItemAdapter(musicListItemList);
                         musicRecyclerview.setAdapter(adapter);
+                        adapter.setOnItemClickListener(new MusicListItemAdapter.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(View view, int position) {
+                                NetworkSong networkSong = netWorkSongs.get(position);
+                                String playAdress = "https://api.imjad.cn/cloudmusic/?type=song&id="+networkSong.getSongId()+"&br=128000";
+                                HttpUtils.sendOkHttpRequestbyGet(playAdress, new Callback() {
+                                    @Override
+                                    public void onFailure(Call call, IOException e) {
+                                        e.printStackTrace();
+                                    }
+
+                                    @Override
+                                    public void onResponse(Call call, Response response) throws IOException {
+                                        final String respt = response.body().string();
+                                        String playAdress = NetWorkUtil.getPlayAdress(respt);
+                                        PlayManager.getInstance(getContext()).playNetSong(playAdress);
+                                    }
+                                });
+                            }
+
+                            @Override
+                            public void onItemLongClick(View view, int position) {
+
+                            }
+                        });
                         SwipeRefreshLayout swipeRefreshLayout = getActivity().findViewById(R.id.swipe_refresh);
                         swipeRefreshLayout.setRefreshing(false);
                     }
@@ -189,6 +209,8 @@ public class MusicListFragment extends Fragment {
         });
 
     }
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
