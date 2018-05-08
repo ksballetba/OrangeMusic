@@ -1,0 +1,10 @@
+<litepal>
+    <dbname value="orange_music" />
+
+    <version value="1"/>
+
+    <list>
+        <mapping class="com.ksblletba.orangemusic.bean.NetworkSong" />
+    </list>
+
+</litepal>

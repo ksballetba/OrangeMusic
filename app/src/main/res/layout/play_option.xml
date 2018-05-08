@@ -10,6 +10,8 @@
         android:id="@+id/play_detail_progressbar"
         android:layout_width="320dp"
         android:layout_height="wrap_content"
+        android:thumbTint="@color/colorPrimary"
+        android:progressTint="@color/colorPrimary"
         android:layout_centerHorizontal="true"/>
 
     <RelativeLayout
@@ -63,7 +65,7 @@
             android:layout_marginLeft="20dp"
             android:layout_marginRight="20dp"
             app:elevation="3dp"
-            android:src="@drawable/ic_play_arrow_white_24dp" />
+            android:src="@drawable/ic_play_arrow_net_24dp" />
         <Button
             android:id="@+id/paly_detail_next"
             android:layout_width="30dp"

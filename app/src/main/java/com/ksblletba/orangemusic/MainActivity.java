@@ -18,14 +18,17 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.util.Pair;
 import android.support.v4.view.GravityCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
@@ -37,26 +40,32 @@ import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.ksblletba.orangemusic.bean.Album;
+import com.ksblletba.orangemusic.bean.NetworkSong;
 import com.ksblletba.orangemusic.bean.Song;
 import com.ksblletba.orangemusic.fragment.AlbumListFragment;
 import com.ksblletba.orangemusic.fragment.MusicListFragment;
 import com.ksblletba.orangemusic.manager.PlayManager;
 import com.ksblletba.orangemusic.manager.ruler.Rule;
 import com.ksblletba.orangemusic.service.PlayService;
+import com.ksblletba.orangemusic.utils.HttpUtils;
 import com.ksblletba.orangemusic.utils.MediaUtils;
+import com.ksblletba.orangemusic.utils.NetWorkUtil;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import okhttp3.Call;
+import okhttp3.Callback;
+import okhttp3.Response;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 
 
 @RuntimePermissions
-public class MainActivity extends AppCompatActivity implements PlayManager.Callback{
+public class MainActivity extends AppCompatActivity implements PlayManager.Callback {
     @BindView(R.id.main_tool_bar)
     Toolbar mainToolBar;
     @BindView(R.id.main_tab_layout)
@@ -89,6 +98,8 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
     NavigationView navViewTab;
     @BindView(R.id.draw_layout)
     DrawerLayout drawLayout;
+    @BindView(R.id.music_mini_cardview)
+    CardView musicMiniCardview;
     private ImageView navHeadImage;
     private TextView navHeadSongName;
     private TextView navHeadArtist;
@@ -99,6 +110,7 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
     private AlbumListFragment albumListFragment = new AlbumListFragment();
     private Song currentSong = null;
     private List<Song> songList;
+    private SearchView searchView;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
 
@@ -115,8 +127,8 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         navHeadImage = navViewTab.getHeaderView(0).findViewById(R.id.nav_headimage);
-        navHeadSongName=navViewTab.getHeaderView(0).findViewById(R.id.nav_headsongname);
-        navHeadArtist=navViewTab.getHeaderView(0).findViewById(R.id.nav_headartist);
+        navHeadSongName = navViewTab.getHeaderView(0).findViewById(R.id.nav_headsongname);
+        navHeadArtist = navViewTab.getHeaderView(0).findViewById(R.id.nav_headartist);
         pref = PreferenceManager.getDefaultSharedPreferences(this);
         MainActivityPermissionsDispatcher.initSongInifoWithPermissionCheck(this);
         setSupportActionBar(mainToolBar);
@@ -139,7 +151,7 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
             currentSong = PlayManager.getInstance(this).getCurrentSong();
         }
         PlayManager.getInstance(this).registerCallback(this);
-        MainActivityPermissionsDispatcher.setMusicInfoWithPermissionCheck(this,currentSong);
+        MainActivityPermissionsDispatcher.setMusicInfoWithPermissionCheck(this, currentSong);
         onPlayStateChange(PlayManager.getInstance(this).isPlaying());
         super.onResume();
     }
@@ -167,7 +179,39 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
         editor.apply();
         super.onDestroy();
     }
-//
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.toolbar_menu, menu);
+        MenuItem searchItem = menu.findItem(R.id.search_btn);
+        //通过MenuItem得到SearchView
+        searchView = (SearchView) searchItem.getActionView();
+        searchView.setQueryHint("发现好音乐");
+        searchView.setMaxWidth(Integer.MAX_VALUE);
+        searchView.setOnQueryTextListener(onQueryTextListener);
+        LinearLayout searchViewFrame = (LinearLayout) searchView.findViewById(R.id.search_edit_frame);
+        ((LinearLayout.LayoutParams)searchViewFrame.getLayoutParams()).leftMargin=0;
+        return super.onCreateOptionsMenu(menu);
+
+    }
+
+    private SearchView.OnQueryTextListener onQueryTextListener = new SearchView.OnQueryTextListener() {
+        @Override
+        public boolean onQueryTextSubmit(String query) {
+            Intent intent =  new Intent(MainActivity.this,SearchActivity.class);
+            intent.putExtra("search_key",query);
+            startActivity(intent);
+            return true;
+        }
+
+        @Override
+        public boolean onQueryTextChange(String newText) {
+            return false;
+        }
+    };
+
+
+    //
     private NavigationView.OnNavigationItemSelectedListener navItemSlistener = new NavigationView.OnNavigationItemSelectedListener() {
         @Override
         public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -234,9 +278,9 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
                     onPlayStateChange(PlayManager.getInstance(v.getContext()).isPlaying());
                     break;
                 case R.id.music_mini_option_next:
-                    PlayManager.getInstance(v.getContext()).next();
+//                    PlayManager.getInstance(v.getContext()).next();
 //                    Log.d("data", "###"+);
-
+                    getNetWorkSongId(currentSong.getDisplayName());
                     break;
                 case R.id.music_mini_option_previous:
                     PlayManager.getInstance(v.getContext()).previous();
@@ -257,11 +301,12 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
         ActivityOptionsCompat transitionActivityOptions = ActivityOptionsCompat.makeSceneTransitionAnimation(this, ShareImage, ShareTextMusic, ShareTextArtist);
         ActivityCompat.startActivity(this, intent, transitionActivityOptions.toBundle());
     }
+
     public void onPlayStateChange(boolean state) {
         if (state) {
-            musicMiniOptionPlay.setBackgroundResource(R.drawable.ic_pause_pink_500_24dp);
+            musicMiniOptionPlay.setBackgroundResource(R.drawable.ic_pause_net_24dp);
         } else {
-            musicMiniOptionPlay.setBackgroundResource(R.drawable.ic_play_arrow_pink_500_24dp);
+            musicMiniOptionPlay.setBackgroundResource(R.drawable.ic_play_arrow_net_24dp);
         }
     }
 
@@ -285,6 +330,7 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
         Glide.with(this).load(currentSongArt).into(musicMiniThump);
         Glide.with(this).load(currentSongArt).into(navHeadImage);
     }
+
     @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
     void initSongInifo() {
         initViewPager();
@@ -297,7 +343,7 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
             if (song.getTitle().equals(pref.getString("song_name", "")))
                 currentSong = song;
         }
-        MainActivityPermissionsDispatcher.setMusicInfoWithPermissionCheck(this,currentSong);
+        MainActivityPermissionsDispatcher.setMusicInfoWithPermissionCheck(this, currentSong);
     }
 
     @Override
@@ -325,7 +371,7 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
     public void onPlayStateChanged(int state, Song song) {
         switch (state) {
             case PlayService.STATE_INITIALIZED:
-                MainActivityPermissionsDispatcher.setMusicInfoWithPermissionCheck(this,song);
+                MainActivityPermissionsDispatcher.setMusicInfoWithPermissionCheck(this, song);
                 break;
             case PlayService.STATE_STARTED:
                 onPlayStateChange(PlayManager.getInstance(this).isPlaying());
@@ -346,5 +392,30 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
                 onPlayStateChange(PlayManager.getInstance(this).isPlaying());
                 break;
         }
+    }
+
+
+    void getNetWorkSongId(String songName) {
+        String Url = "https://v1.hitokoto.cn/nm/search/" + songName + "?type=SONG";
+        HttpUtils.sendOkHttpRequest(Url, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                e.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String responseText = response.body().string();
+
+
+                List<NetworkSong> netWorkSongs = NetWorkUtil.getNetWorkSong(responseText);
+                final NetworkSong demo = netWorkSongs.get(0);
+                Log.d("data", "onResponse: " + demo.getSongid());
+                Log.d("data", "onResponse: " + demo.getName());
+
+
+            }
+        });
+
     }
 }

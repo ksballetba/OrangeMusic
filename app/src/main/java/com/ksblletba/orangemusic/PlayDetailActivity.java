@@ -18,7 +18,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
 import com.ksblletba.orangemusic.adapter.MusicListItemAdapter;
 import com.ksblletba.orangemusic.bean.Album;
@@ -29,16 +28,12 @@ import com.ksblletba.orangemusic.manager.ruler.Rule;
 import com.ksblletba.orangemusic.manager.ruler.Rulers;
 import com.ksblletba.orangemusic.service.PlayService;
 import com.ksblletba.orangemusic.utils.MediaUtils;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 public class PlayDetailActivity extends AppCompatActivity implements PlayManager.Callback, PlayManager.ProgressCallback {
-
-
     @BindView(R.id.play_detail_image)
     ImageView playDetailImage;
     @BindView(R.id.paly_detail_musicinfo)

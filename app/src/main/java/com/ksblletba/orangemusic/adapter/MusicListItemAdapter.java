@@ -68,7 +68,13 @@ public class MusicListItemAdapter extends RecyclerView.Adapter<MusicListItemAdap
         MusicListItem musicListItem = mMusicList.get(position);
         holder.musicName.setText(musicListItem.getMusicName());
         holder.artistName.setText(musicListItem.getArtistName());
-        Glide.with(mContext).load(musicListItem.getMusicAlbumImageId()).into(holder.musicAlbumImage);
+        if (musicListItem.getMusicAlbumImageId()!=null) {
+            Glide.with(mContext).load(musicListItem.getMusicAlbumImageId()).into(holder.musicAlbumImage);
+        } else if(musicListItem.getMusicAlbumImageURL()!=null){
+            Glide.with(mContext).load(musicListItem.getMusicAlbumImageURL()).into(holder.musicAlbumImage);
+        }
+
+
         if(mOnItemClickListener!=null){
             holder.cardView.setOnClickListener(new View.OnClickListener() {
                 @Override

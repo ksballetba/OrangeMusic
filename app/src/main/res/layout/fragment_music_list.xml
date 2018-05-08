@@ -16,9 +16,5 @@
 
     </android.support.v7.widget.RecyclerView>
 
-    <!--<ListView-->
-        <!--android:id="@+id/music_listview"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"></ListView>-->
 
 </FrameLayout>

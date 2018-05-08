@@ -10,10 +10,25 @@ public class MusicListItem {
     private String musicName;
     private Uri musicAlbumImageId;
     private String artistName;
+    private String musicAlbumImageURL;
 
     public MusicListItem(String musicName, Uri musicAlbumImageId, String artistName) {
         this.musicName = musicName;
         this.musicAlbumImageId = musicAlbumImageId;
+        this.artistName = artistName;
+    }
+
+    public String getMusicAlbumImageURL() {
+        return musicAlbumImageURL;
+    }
+
+    public void setMusicAlbumImageURL(String musicAlbumImageURL) {
+        this.musicAlbumImageURL = musicAlbumImageURL;
+    }
+
+    public MusicListItem(String musicName, String musicAlbumImageURL, String artistName) {
+        this.musicName = musicName;
+        this.musicAlbumImageURL = musicAlbumImageURL;
         this.artistName = artistName;
     }
 
