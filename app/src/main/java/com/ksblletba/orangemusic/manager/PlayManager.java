@@ -47,6 +47,7 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
     private int mState = PlayService.STATE_IDLE;
     private Rule mPlayRule = Rulers.RULER_LIST_LOOP;
     private PlayService mService;
+    private String playAdress;
 
 
     public int getmState() {
@@ -115,11 +116,8 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         Log.v(TAG, "dispatch getAudioFocus mService=" + mService);
         bindPlayService();
         startPlayService();
-//        if (mCurrentList == null || mCurrentList.isEmpty() || song == null) {
-//            return;
-//        }
-        //mCurrentAlbum = null;
         if (mService != null) {
+            mNetSong=null;
              if (song.equals(mSong)) {
                 if (mService.isStarted()) {
                     //Do really this action by user
@@ -164,7 +162,6 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
                 mNetSong = networkSong;
                 mService.startPlayerNet(adress);
             }
-
         } else {
             mNetSong = networkSong;
             bindPlayService();
@@ -179,10 +176,11 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
     private Runnable mProgressRunnable = new Runnable() {
         @Override
         public void run() {
-            if (mCallbacks != null && !mCallbacks.isEmpty()
-                     && mSong != null) {
+            if (mCallbacks != null && !mCallbacks.isEmpty()) {
                 for (ProgressCallback callback : mProgressCallbacks) {
-                    callback.onProgress(mService.getPosition(), mSong.getDuration());
+                    if (mSong!=null&&mNetSong==null) {
+                        callback.onProgress(mService.getPosition(), mSong.getDuration());
+                    }
                 }
                 mHandler.postDelayed(this, mPeriod);
                 isProgressUpdating = true;
@@ -201,8 +199,8 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
                 for (ProgressCallback callback : mProgressCallbacks) {
                     if (mNetSong!=null) {
                         callback.setMusicInfoNet(mNetSong);
+                        callback.onProgress(mService.getPosition(),mNetSong.getDuration());
                     }
-
                 }
                 mHandler.postDelayed(this, mPeriodNet);
                 isUIUpdating = true;
@@ -225,7 +223,7 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         return null;
     }
 
-    private void startUpdateProgressIfNeed () {
+    private void startUpdateProgressIfNeed() {
         if (!isProgressUpdating) {
             mHandler.post(mProgressRunnable);
         }
@@ -237,7 +235,7 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
 
 
 
-    public void registerProgressCallback (ProgressCallback callback) {
+    public void registerProgressCallback(ProgressCallback callback) {
         if (mProgressCallbacks.contains(callback)) {
             return;
         }

@@ -65,6 +65,7 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
     private NetworkSong currentNetSong;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
+    private String playAdress;
 
 
     @Override
@@ -95,6 +96,11 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
             currentNetSong = (NetworkSong)getIntent().getSerializableExtra("current_netsong");
         }
 
+        if (PlayManager.getInstance(this).isPlayInNet()){
+            Log.d("data", ""+currentNetSong.getName());
+        } else {
+            setMusicInfo(currentSong);
+        }
 
 
 //        setMusicInfo(currentSong);
@@ -112,7 +118,8 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
             switch (v.getId()) {
                 case R.id.paly_detail_play:
                     if (PlayManager.getInstance(v.getContext()).isService()) {
-                        PlayManager.getInstance(v.getContext()).dispatch();
+                            PlayManager.getInstance(v.getContext()).dispatch();
+
                     } else
                         PlayManager.getInstance(v.getContext()).dispatch(currentSong, "fasd");
                     break;
@@ -159,12 +166,6 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
 
     @Override
     protected void onResume() {
-        if (PlayManager.getInstance(this).isPlayInNet()){
-            Log.d("data", ""+currentNetSong.getName());
-//            setMusicInfoNet(currentNetSong);
-        } else {
-            setMusicInfo(currentSong);
-        }
         String nowRuleState = pref.getString("rule_state","list_loop");
         Log.d("data", "++"+nowRuleState);
         setRule(nowRuleState);
@@ -244,6 +245,7 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
         playDetailMusicTitle.setText(song.getTitle());
         playDetailArtistName.setText(song.getArtist());
         Glide.with(this).load(ART).into(playDetailImage);
+
 //        playDetailImage.setImageResource(R.drawable.music2);
     }
 
@@ -252,6 +254,7 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
         playDetailMusicTitle.setText(song.getName());
         playDetailArtistName.setText(song.getArtists().get(0).getName());
         Glide.with(this).load(song.getAlbum().getPicUrl()).into(playDetailImage);
+
 //        playDetailImage.setImageResource(R.drawable.music2);
     }
 
@@ -263,9 +266,11 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
                 setMusicInfo(song);
                 break;
             case PlayService.STATE_STARTED:
+            case PlayService.STATE_STARTED_NET:
                 onPlayStateChange(PlayManager.getInstance(this).isPlaying());
                 break;
             case PlayService.STATE_PAUSED:
+            case PlayService.STATE_PAUSED_NET:
                 onPlayStateChange(PlayManager.getInstance(this).isPlaying());
                 break;
             case PlayService.STATE_COMPLETED:
