@@ -1,6 +1,7 @@
 package com.ksblletba.orangemusic.service;
 
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
@@ -22,7 +23,8 @@ public class PlayService extends Service implements MediaPlayer.OnInfoListener,
 
     public static final int STATE_IDLE = 0, STATE_INITIALIZED = 1, STATE_PREPARING = 2,
             STATE_PREPARED = 3, STATE_STARTED = 4, STATE_PAUSED = 5, STATE_STOPPED = 6,
-            STATE_COMPLETED = 7, STATE_RELEASED = 8, STATE_ERROR = -1;
+            STATE_COMPLETED = 7, STATE_RELEASED = 8, STATE_ERROR = -1,STATE_INITIALIZED_NET=9,
+            STATE_PREPARING_NET = 10,STATE_PREPARED_NET = 11,STATE_STARTED_NET = 12,STATE_PAUSED_NET = 13;
 
     @Override
     public boolean onInfo(MediaPlayer mp, int what, int extra) {
@@ -31,8 +33,17 @@ public class PlayService extends Service implements MediaPlayer.OnInfoListener,
 
     @Override
     public void onPrepared(MediaPlayer mp) {
-        setPlayerState(STATE_PREPARED);
-        doStartPlayer();
+        switch (mState) {
+            case STATE_PREPARING:
+                setPlayerState(STATE_PREPARED);
+                doStartPlayer();
+                break;
+            case STATE_PREPARING_NET:
+                setPlayerState(STATE_PREPARED_NET);
+                doStartPlayer();
+                break;
+        }
+
     }
 
     @Override
@@ -53,7 +64,10 @@ public class PlayService extends Service implements MediaPlayer.OnInfoListener,
     @IntDef({STATE_IDLE, STATE_INITIALIZED, STATE_PREPARING,
             STATE_PREPARED, STATE_STARTED, STATE_PAUSED,
             STATE_STOPPED, STATE_COMPLETED, STATE_RELEASED,
-            STATE_ERROR})
+            STATE_ERROR,STATE_INITIALIZED_NET,
+            STATE_PREPARING_NET,STATE_PREPARED_NET,
+            STATE_STARTED_NET,STATE_PAUSED_NET})
+
     @Retention(RetentionPolicy.SOURCE)
     public @interface State {}
 
@@ -138,13 +152,11 @@ public class PlayService extends Service implements MediaPlayer.OnInfoListener,
         ensurePlayer();
         try {
             Log.d("data", "startPlayerNet: "+url);
-//            MediaPlayer mediaPlayer = new MediaPlayer();
             mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mPlayer.setDataSource(url);
-            setPlayerState(STATE_INITIALIZED);
+            setPlayerState(STATE_INITIALIZED_NET);
             mPlayer.prepareAsync();
-            setPlayerState(STATE_PREPARING);
-//You can show progress dialog here untill it prepared to play
+            setPlayerState(STATE_PREPARING_NET);
         }catch (IOException e){
             releasePlayer();
             Log.d("data", "playNetSong: bad");
@@ -153,7 +165,17 @@ public class PlayService extends Service implements MediaPlayer.OnInfoListener,
 
     public void doStartPlayer () {
         mPlayer.start();
-        setPlayerState(STATE_STARTED);
+        switch (mState) {
+            case STATE_PREPARED_NET:
+            case STATE_PAUSED_NET:
+                setPlayerState(STATE_STARTED_NET);
+                break;
+            case STATE_PREPARED:
+            case STATE_PAUSED:
+                setPlayerState(STATE_STARTED);
+                break;
+        }
+
     }
 
     public void resumePlayer () {
@@ -165,7 +187,14 @@ public class PlayService extends Service implements MediaPlayer.OnInfoListener,
     public void pausePlayer () {
         if (isStarted()) {
             mPlayer.pause();
-            setPlayerState(STATE_PAUSED);
+            switch (mState){
+                case STATE_STARTED:
+                    setPlayerState(STATE_PAUSED);
+                    break;
+                case STATE_STARTED_NET:
+                    setPlayerState(STATE_PAUSED_NET);
+            }
+
         }
     }
 
@@ -185,11 +214,11 @@ public class PlayService extends Service implements MediaPlayer.OnInfoListener,
     }
 
     public boolean isStarted () {
-        return mState == STATE_STARTED;
+        return mState == STATE_STARTED||mState==STATE_STARTED_NET;
     }
 
     public boolean isPaused () {
-        return mState == STATE_PAUSED;
+        return mState == STATE_PAUSED||mState==STATE_PAUSED_NET;
     }
 
     public boolean isReleased () {

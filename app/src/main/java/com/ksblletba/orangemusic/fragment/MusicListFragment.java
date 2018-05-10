@@ -1,9 +1,14 @@
 package com.ksblletba.orangemusic.fragment;
 
 
+
 import android.Manifest;
+import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -15,6 +20,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import com.ksblletba.orangemusic.MainActivity;
+import com.ksblletba.orangemusic.PlayDetailActivity;
 import com.ksblletba.orangemusic.R;
 import com.ksblletba.orangemusic.SearchActivity;
 import com.ksblletba.orangemusic.adapter.MusicListItemAdapter;
@@ -22,15 +28,12 @@ import com.ksblletba.orangemusic.bean.MusicListItem;
 import com.ksblletba.orangemusic.bean.NetworkSong;
 import com.ksblletba.orangemusic.bean.Song;
 import com.ksblletba.orangemusic.manager.PlayManager;
-import com.ksblletba.orangemusic.service.PlayService;
 import com.ksblletba.orangemusic.utils.HttpUtils;
 import com.ksblletba.orangemusic.utils.MediaUtils;
 import com.ksblletba.orangemusic.utils.NetWorkUtil;
-
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
@@ -54,6 +57,7 @@ public class MusicListFragment extends Fragment {
     public static String SEARCH_LIMITURL="&offset=0&limit=1";
     private SearchView searchView;
     private String searchKey;
+    private final NetworkSong mNetSong=null;
 
     @BindView(R.id.music_recyclerview)
     RecyclerView musicRecyclerview;
@@ -76,6 +80,8 @@ public class MusicListFragment extends Fragment {
         unbinder = ButterKnife.bind(this, view);
         return view;
     }
+
+
 
     private SearchView.OnQueryTextListener onQueryTextListener = new SearchView.OnQueryTextListener() {
         @Override
@@ -131,7 +137,16 @@ public class MusicListFragment extends Fragment {
         } else if(getActivity()instanceof SearchActivity){
             searchView = getActivity().findViewById(R.id.search_view);
             searchView.setOnQueryTextListener(onQueryTextListener);
-            SwipeRefreshLayout swipeRefreshLayout = getActivity().findViewById(R.id.swipe_refresh);
+            final SwipeRefreshLayout swipeRefreshLayout = getActivity().findViewById(R.id.swipe_refresh);
+            musicRecyclerview.addOnScrollListener(new RecyclerView.OnScrollListener() {
+                @Override
+                public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                    int topRowVerticalPosition =
+                            (recyclerView == null || recyclerView.getChildCount() == 0) ? 0 : recyclerView.getChildAt(0).getTop();
+                    swipeRefreshLayout.setEnabled(topRowVerticalPosition >= 0);
+                }
+            });
+            swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
             swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
@@ -144,11 +159,23 @@ public class MusicListFragment extends Fragment {
 
     }
 
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            if (msg.what == 1) {
+
+            }
+        }
+    };
+
+
+
 
     private void getNetWorkSongs(String songName) {
         SwipeRefreshLayout swipeRefreshLayout = getActivity().findViewById(R.id.swipe_refresh);
         swipeRefreshLayout.setRefreshing(true);
-        String Url = "http://music.163.com/api/search/pc/?type=1&s="+songName+"&offset=0&limit=10";
+        String Url = "http://music.163.com/api/search/pc/?type=1&s="+songName+"&offset=0&limit=30";
         HttpUtils.sendOkHttpRequestbyPost(Url, new Callback() {
             @Override
             public void onFailure(Call call, IOException e) {
@@ -159,14 +186,10 @@ public class MusicListFragment extends Fragment {
             public void onResponse(Call call, Response response) throws IOException {
                 final String responseText = response.body().string();
                 final List<NetworkSong> netWorkSongs = NetWorkUtil.getNetWorkSong(responseText);
-                final NetworkSong demo = netWorkSongs.get(0);
-                Log.d("data", "onResponse: " + demo.getSongId());
-                Log.d("data", "onResponse: " + demo.getName());
                 for (NetworkSong netWorkSong : netWorkSongs) {
                     String picURL = netWorkSong.getAlbum().getPicUrl();
                     musicListItemList.add(new MusicListItem(netWorkSong.getName(),picURL,netWorkSong.getArtists().get(0).getName()));
                 }
-
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -177,7 +200,7 @@ public class MusicListFragment extends Fragment {
                         adapter.setOnItemClickListener(new MusicListItemAdapter.OnItemClickListener() {
                             @Override
                             public void onItemClick(View view, int position) {
-                                NetworkSong networkSong = netWorkSongs.get(position);
+                                final NetworkSong networkSong = netWorkSongs.get(position);
                                 String playAdress = "https://api.imjad.cn/cloudmusic/?type=song&id="+networkSong.getSongId()+"&br=128000";
                                 HttpUtils.sendOkHttpRequestbyGet(playAdress, new Callback() {
                                     @Override
@@ -189,9 +212,16 @@ public class MusicListFragment extends Fragment {
                                     public void onResponse(Call call, Response response) throws IOException {
                                         final String respt = response.body().string();
                                         String playAdress = NetWorkUtil.getPlayAdress(respt);
-                                        PlayManager.getInstance(getContext()).playNetSong(playAdress);
+                                        PlayManager.getInstance(getContext()).playNetSong(networkSong,playAdress);
+                                        Log.d("data", "onClick: "+ PlayManager.getInstance(getContext()).getmState());
+                                        Log.d("data", ""+ networkSong.getName());
+//                                        Message msg =
                                     }
                                 });
+
+                                Intent intent = new Intent(getActivity(),PlayDetailActivity.class);
+                                Log.d("data", "+++"+PlayManager.getInstance(getContext()).getmNetSong());
+                                startActivity(intent);
                             }
 
                             @Override
@@ -203,13 +233,9 @@ public class MusicListFragment extends Fragment {
                         swipeRefreshLayout.setRefreshing(false);
                     }
                 });
-
-
             }
         });
-
     }
-
 
 
     @Override

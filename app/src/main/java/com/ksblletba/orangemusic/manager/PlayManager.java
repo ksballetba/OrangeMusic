@@ -39,6 +39,7 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
     private List<Callback> mCallbacks;
     private List<ProgressCallback> mProgressCallbacks;
     private Song mSong = null;
+    private NetworkSong mNetSong;
     private List<Album> mTotalAlbumList;
     private List<Song> mTotalList;
     private List<Song> mCurrentList;
@@ -47,6 +48,10 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
     private Rule mPlayRule = Rulers.RULER_LIST_LOOP;
     private PlayService mService;
 
+
+    public int getmState() {
+        return mState;
+    }
 
 
     public static synchronized PlayManager getInstance(Context context){
@@ -142,17 +147,32 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
 
     }
 
-    public void playNetSong(String adress){
+    public void playNetSong(NetworkSong networkSong,String adress){
         if (mService != null) {
-            mService.releasePlayer();
-            mService.startPlayerNet(adress);
+            if(networkSong.equals(mNetSong)){
+                if (mService.isStarted()) {
+                    pause();
+                } else if (mService.isPaused()){
+                    resume();
+                } else {
+                    mService.releasePlayer();
+                    mNetSong = networkSong;
+                    mService.startPlayerNet(adress);
+                }
+            } else {
+                mService.releasePlayer();
+                mNetSong = networkSong;
+                mService.startPlayerNet(adress);
+            }
 
         } else {
+            mNetSong = networkSong;
             bindPlayService();
             startPlayService();
         }
-
     }
+
+
 
     private int mPeriod = 1000;
     private boolean isProgressUpdating = false;
@@ -172,6 +192,28 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         }
     };
 
+    private int mPeriodNet = 1000;
+    private boolean isUIUpdating = false;
+    private Runnable mUIRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (mCallbacks != null && !mCallbacks.isEmpty()) {
+                for (ProgressCallback callback : mProgressCallbacks) {
+                    if (mNetSong!=null) {
+                        callback.setMusicInfoNet(mNetSong);
+                    }
+
+                }
+                mHandler.postDelayed(this, mPeriodNet);
+                isUIUpdating = true;
+            } else {
+                isUIUpdating = false;
+            }
+        }
+    };
+
+
+
 
 
     public Album getAlbum (int albumId) {
@@ -186,6 +228,9 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
     private void startUpdateProgressIfNeed () {
         if (!isProgressUpdating) {
             mHandler.post(mProgressRunnable);
+        }
+        if(!isUIUpdating){
+            mHandler.post(mUIRunnable);
         }
     }
 
@@ -226,6 +271,14 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         if (mCallbacks.contains(callback)) {
             mCallbacks.remove(callback);
         }
+    }
+
+    public NetworkSong getmNetSong() {
+        return mNetSong;
+    }
+
+    public boolean isPlayInNet(){
+        return mState>8;
     }
 
     public void next() {
@@ -329,6 +382,8 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         }
     }
 
+
+
     /**
      *
      * @return the current {@link Rule}
@@ -340,5 +395,6 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
 
     public interface ProgressCallback {
         void onProgress (int progress, int duration);
+        void setMusicInfoNet(NetworkSong song);
     }
 }

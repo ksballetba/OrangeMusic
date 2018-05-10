@@ -38,6 +38,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.ksblletba.orangemusic.bean.Album;
@@ -149,7 +150,9 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
     @Override
     protected void onResume() {
         if (PlayManager.getInstance(this).isService()) {
-            currentSong = PlayManager.getInstance(this).getCurrentSong();
+            if (PlayManager.getInstance(this).getCurrentSong()!=null) {
+                currentSong = PlayManager.getInstance(this).getCurrentSong();
+            }
         }
         PlayManager.getInstance(this).registerCallback(this);
         MainActivityPermissionsDispatcher.setMusicInfoWithPermissionCheck(this, currentSong);
@@ -269,8 +272,11 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
                     launchPlayActivity();
                     break;
                 case R.id.music_mini_option_play:
-                    if (PlayManager.getInstance(v.getContext()).isService())
+                    if (PlayManager.getInstance(v.getContext()).isService()){
                         PlayManager.getInstance(v.getContext()).dispatch();
+                        Log.d("data", "onClick: "+ PlayManager.getInstance(v.getContext()).getmState());
+                    }
+
                     else
                         PlayManager.getInstance(v.getContext()).dispatch(currentSong, "fsaf");
                     Log.d("data", "onClick: " + PlayManager.getInstance(v.getContext()).isPlaying());
@@ -374,6 +380,9 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
             case PlayService.STATE_INITIALIZED:
                 MainActivityPermissionsDispatcher.setMusicInfoWithPermissionCheck(this, song);
                 break;
+            case PlayService.STATE_PREPARED_NET:
+                Glide.with(this).load(R.drawable.music).into(musicMiniThump);
+                break;
             case PlayService.STATE_STARTED:
                 onPlayStateChange(PlayManager.getInstance(this).isPlaying());
                 break;
@@ -394,10 +403,4 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
                 break;
         }
     }
-
-    public void demo(){
-
-    }
-
-
 }

@@ -1,12 +1,13 @@
 package com.ksblletba.orangemusic.bean;
 
+import java.io.Serializable;
 import java.util.List;
 
 /**
  * Created by Administrator on 2018/5/7.
  */
 
-public class NetworkSong{
+public class NetworkSong implements Serializable {
 
 
     /**

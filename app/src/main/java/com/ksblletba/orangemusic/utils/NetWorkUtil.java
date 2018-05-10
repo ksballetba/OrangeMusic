@@ -74,5 +74,4 @@ public class NetWorkUtil {
         return null;
     }
 
-
 }

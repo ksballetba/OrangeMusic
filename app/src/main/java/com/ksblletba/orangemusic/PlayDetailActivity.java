@@ -22,6 +22,7 @@ import com.bumptech.glide.Glide;
 import com.ksblletba.orangemusic.adapter.MusicListItemAdapter;
 import com.ksblletba.orangemusic.bean.Album;
 import com.ksblletba.orangemusic.bean.MusicListItem;
+import com.ksblletba.orangemusic.bean.NetworkSong;
 import com.ksblletba.orangemusic.bean.Song;
 import com.ksblletba.orangemusic.manager.PlayManager;
 import com.ksblletba.orangemusic.manager.ruler.Rule;
@@ -61,6 +62,7 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
     @BindView(R.id.play_detail_backbutton)
     Button playDetailBackbutton;
     private Song currentSong;
+    private NetworkSong currentNetSong;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
 
@@ -84,11 +86,23 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
         playDetailBackbutton.setOnClickListener(viewOnClickListener);
         playDetailRule.setOnClickListener(viewOnClickListener);
         if (PlayManager.getInstance(this).isService()) {
-            currentSong = PlayManager.getInstance(this).getCurrentSong();
-        } else currentSong = (Song) getIntent().getSerializableExtra("current_song");
+            if (PlayManager.getInstance(this).isPlayInNet()) {
+                currentNetSong = PlayManager.getInstance(this).getmNetSong();
+            }
+            else currentSong = PlayManager.getInstance(this).getCurrentSong();
+        } else {
+            currentSong = (Song) getIntent().getSerializableExtra("current_song");
+            currentNetSong = (NetworkSong)getIntent().getSerializableExtra("current_netsong");
+        }
 
-        setMusicInfo(currentSong);
+
+
+//        setMusicInfo(currentSong);
+        Log.d("data", "+++"+currentNetSong);
+        Log.d("data", "+++"+currentSong);
     }
+
+
 
 
 
@@ -145,6 +159,12 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
 
     @Override
     protected void onResume() {
+        if (PlayManager.getInstance(this).isPlayInNet()){
+            Log.d("data", ""+currentNetSong.getName());
+//            setMusicInfoNet(currentNetSong);
+        } else {
+            setMusicInfo(currentSong);
+        }
         String nowRuleState = pref.getString("rule_state","list_loop");
         Log.d("data", "++"+nowRuleState);
         setRule(nowRuleState);
@@ -224,6 +244,14 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
         playDetailMusicTitle.setText(song.getTitle());
         playDetailArtistName.setText(song.getArtist());
         Glide.with(this).load(ART).into(playDetailImage);
+//        playDetailImage.setImageResource(R.drawable.music2);
+    }
+
+    @Override
+    public void setMusicInfoNet(NetworkSong song) {
+        playDetailMusicTitle.setText(song.getName());
+        playDetailArtistName.setText(song.getArtists().get(0).getName());
+        Glide.with(this).load(song.getAlbum().getPicUrl()).into(playDetailImage);
 //        playDetailImage.setImageResource(R.drawable.music2);
     }
 

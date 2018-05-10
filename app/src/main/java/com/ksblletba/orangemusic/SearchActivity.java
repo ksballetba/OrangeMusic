@@ -62,12 +62,12 @@ public class SearchActivity extends AppCompatActivity {
         searchKey = getIntent().getStringExtra("search_key");
         searchView.setQuery(searchKey, false);
         ((LinearLayout.LayoutParams) searchViewFrame.getLayoutParams()).leftMargin = 0;
-        searchAppBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
-            @Override
-            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
-                swipeRefresh.setEnabled(verticalOffset >= 0 ? true : false);
-            }
-        });
+//        searchAppBarLayout.addOnOffsetChangedListener(new AppBarLayout.OnOffsetChangedListener() {
+//            @Override
+//            public void onOffsetChanged(AppBarLayout appBarLayout, int verticalOffset) {
+//                swipeRefresh.setEnabled(verticalOffset >= 0 ? true : false);
+//            }
+//        });
         initViewPager();
         actionBar = getSupportActionBar();
         if (actionBar != null) {
