@@ -67,7 +67,7 @@ import permissions.dispatcher.RuntimePermissions;
 
 
 @RuntimePermissions
-public class MainActivity extends AppCompatActivity implements PlayManager.Callback {
+public class MainActivity extends AppCompatActivity implements PlayManager.Callback,PlayManager.ProgressCallback {
     @BindView(R.id.main_tool_bar)
     Toolbar mainToolBar;
     @BindView(R.id.main_tab_layout)
@@ -115,6 +115,7 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
     private SearchView searchView;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
+    private NetworkSong currentNetSong;
 
     public void setCurrentSong(Song currentSong) {
         this.currentSong = currentSong;
@@ -149,13 +150,18 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
 
     @Override
     protected void onResume() {
+
         if (PlayManager.getInstance(this).isService()) {
-            if (PlayManager.getInstance(this).getCurrentSong()!=null) {
+            if (PlayManager.getInstance(this).isPlayInNet()) {
+                currentNetSong = PlayManager.getInstance(this).getmNetSong();
+            } else if (PlayManager.getInstance(this).getCurrentSong()!=null) {
                 currentSong = PlayManager.getInstance(this).getCurrentSong();
             }
         }
         PlayManager.getInstance(this).registerCallback(this);
-        MainActivityPermissionsDispatcher.setMusicInfoWithPermissionCheck(this, currentSong);
+        PlayManager.getInstance(this).registerProgressCallback(this);
+        if(!PlayManager.getInstance(this).isPlayInNet())
+           MainActivityPermissionsDispatcher.setMusicInfoWithPermissionCheck(this, currentSong);
         onPlayStateChange(PlayManager.getInstance(this).isPlaying());
         super.onResume();
     }
@@ -171,6 +177,7 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
     protected void onPause() {
         super.onPause();
         PlayManager.getInstance(this).unregisterCallback(this);
+        PlayManager.getInstance(this).unregisterProgressCallback(this);
     }
 
 
@@ -272,15 +279,11 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
                     launchPlayActivity();
                     break;
                 case R.id.music_mini_option_play:
-                    if (PlayManager.getInstance(v.getContext()).isService()){
+                    if (PlayManager.getInstance(v.getContext()).isService()) {
                         PlayManager.getInstance(v.getContext()).dispatch();
-                        Log.d("data", "onClick: "+ PlayManager.getInstance(v.getContext()).getmState());
-                    }
-
-                    else
-                        PlayManager.getInstance(v.getContext()).dispatch(currentSong, "fsaf");
+                    } else
+                        PlayManager.getInstance(v.getContext()).dispatch(currentSong, "fasd");
                     Log.d("data", "onClick: " + PlayManager.getInstance(v.getContext()).isPlaying());
-                    onPlayStateChange(PlayManager.getInstance(v.getContext()).isPlaying());
                     break;
                 case R.id.music_mini_option_next:
                     PlayManager.getInstance(v.getContext()).next();
@@ -380,13 +383,12 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
             case PlayService.STATE_INITIALIZED:
                 MainActivityPermissionsDispatcher.setMusicInfoWithPermissionCheck(this, song);
                 break;
-            case PlayService.STATE_PREPARED_NET:
-                Glide.with(this).load(R.drawable.music).into(musicMiniThump);
-                break;
             case PlayService.STATE_STARTED:
+            case PlayService.STATE_STARTED_NET:
                 onPlayStateChange(PlayManager.getInstance(this).isPlaying());
                 break;
             case PlayService.STATE_PAUSED:
+            case PlayService.STATE_PAUSED_NET:
                 onPlayStateChange(PlayManager.getInstance(this).isPlaying());
                 break;
             case PlayService.STATE_STOPPED:
@@ -402,5 +404,17 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
                 onPlayStateChange(PlayManager.getInstance(this).isPlaying());
                 break;
         }
+    }
+
+    @Override
+    public void onProgress(int progress, int duration) {
+
+    }
+
+    @Override
+    public void setMusicInfoNet(NetworkSong song) {
+        mainMiniTitle.setText(song.getName());
+        mainMiniArtistAlbum.setText(song.getArtists().get(0).getName());
+        Glide.with(this).load(song.getAlbum().getPicUrl()).into(musicMiniThump);
     }
 }

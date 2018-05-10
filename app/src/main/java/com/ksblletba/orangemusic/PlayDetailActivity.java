@@ -90,10 +90,21 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
             if (PlayManager.getInstance(this).isPlayInNet()) {
                 currentNetSong = PlayManager.getInstance(this).getmNetSong();
             }
-            else currentSong = PlayManager.getInstance(this).getCurrentSong();
+            else {
+                if(PlayManager.getInstance(this).getCurrentSong()!=null)
+                  currentSong = PlayManager.getInstance(this).getCurrentSong();
+                else currentSong = (Song) getIntent().getSerializableExtra("current_song");
+            }
         } else {
-            currentSong = (Song) getIntent().getSerializableExtra("current_song");
-            currentNetSong = (NetworkSong)getIntent().getSerializableExtra("current_netsong");
+            List<Song> songList = MediaUtils.getAudioList(this);
+            if (currentSong == null) {
+                currentSong = songList.get(0);
+            }
+            for (Song song : songList) {
+                if (song.getTitle().equals(pref.getString("song_name", "")))
+                    currentSong = song;
+            }
+
         }
 
         if (PlayManager.getInstance(this).isPlayInNet()){
