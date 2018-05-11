@@ -129,7 +129,12 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
             switch (v.getId()) {
                 case R.id.paly_detail_play:
                     if (PlayManager.getInstance(v.getContext()).isService()) {
+                        PlayManager pm = PlayManager.getInstance(v.getContext());
+                        if(pm.isPlayInNet()){
+                            pm.PlayPause();
+                        } else {
                             PlayManager.getInstance(v.getContext()).dispatch();
+                        }
 
                     } else
                         PlayManager.getInstance(v.getContext()).dispatch(currentSong, "fasd");

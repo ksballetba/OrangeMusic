@@ -90,9 +90,9 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
             mService.setPlayStateChangeListener(PlayManager.this);
             Log.v(TAG, "onServiceConnected");
 //            startRemoteControl();
-//            if (!isPlaying()) {
-//                dispatch(mSong,"dispatch");
-//            }
+            if (!isPlaying()) {
+                dispatch(mSong,"dispatch");
+            }
 
         }
 
@@ -146,11 +146,10 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
     }
 
     public void playNetSong(NetworkSong networkSong,String adress){
+
         if (mService != null) {
             if(networkSong.equals(mNetSong)){
-                if (mService.isStarted()) {
-                    pause();
-                } else if (mService.isPaused()){
+                if (!mService.isStarted()){
                     resume();
                 } else {
                     mService.releasePlayer();
@@ -209,6 +208,15 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
             }
         }
     };
+
+
+    public void PlayPause(){
+        if(mService.isStarted()){
+            pause();
+        } else if(mService.isPaused()){
+            resume();
+        }
+    }
 
 
 

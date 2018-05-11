@@ -280,17 +280,18 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
                     break;
                 case R.id.music_mini_option_play:
                     if (PlayManager.getInstance(v.getContext()).isService()) {
-                        PlayManager.getInstance(v.getContext()).dispatch();
+                        PlayManager pm = PlayManager.getInstance(v.getContext());
+                        if(pm.isPlayInNet()){
+                            pm.PlayPause();
+                        } else {
+                            PlayManager.getInstance(v.getContext()).dispatch();
+                        }
                     } else
                         PlayManager.getInstance(v.getContext()).dispatch(currentSong, "fasd");
                     Log.d("data", "onClick: " + PlayManager.getInstance(v.getContext()).isPlaying());
                     break;
                 case R.id.music_mini_option_next:
                     PlayManager.getInstance(v.getContext()).next();
-//                    Log.d("data", "###"+);
-//                    getNetWorkSongId(currentSong.getDisplayName());
-//                    demoPlay();
-//                      PlayManager.getInstance(v.getContext()).playNetSong("https://m7.music.126.net/20180508192751/8996a24ba7929796f561783e6d9f4df6/ymusic/fa90/df9c/59f7/95c4a2802e0b9191ae1a048f127e53c5.mp3");
                     break;
                 case R.id.music_mini_option_previous:
                     PlayManager.getInstance(v.getContext()).previous();
