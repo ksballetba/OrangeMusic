@@ -41,6 +41,7 @@
                 android:layout_height="wrap_content"
                 android:text="如风过境"
                 android:textSize="25sp"
+                android:maxLines="1"
                 android:textColor="@color/primary_text"
                 android:transitionName="music_name"/>
 
@@ -51,6 +52,7 @@
                 android:layout_height="wrap_content"
                 android:text="哎哟蔚蔚"
                 android:textSize="20sp"
+                android:maxLines="1"
                 android:textColor="@color/secondary_text"
                 android:transitionName="artist_name"/>
 

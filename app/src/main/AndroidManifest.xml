@@ -26,7 +26,6 @@
             android:name=".service.PlayService"
             android:enabled="true"
             android:exported="true" />
-
         <activity android:name=".SearchActivity"></activity>
     </application>
 

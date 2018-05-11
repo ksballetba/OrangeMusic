@@ -415,7 +415,10 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
     @Override
     public void setMusicInfoNet(NetworkSong song) {
         mainMiniTitle.setText(song.getName());
+        navHeadSongName.setText(song.getName());
         mainMiniArtistAlbum.setText(song.getArtists().get(0).getName());
+        navHeadArtist.setText(song.getArtists().get(0).getName());
         Glide.with(this).load(song.getAlbum().getPicUrl()).into(musicMiniThump);
+        Glide.with(this).load(song.getAlbum().getPicUrl()).into(navHeadImage);
     }
 }
