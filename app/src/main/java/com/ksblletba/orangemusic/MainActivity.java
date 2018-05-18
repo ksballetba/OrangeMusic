@@ -150,7 +150,6 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
 
     @Override
     protected void onResume() {
-
         if (PlayManager.getInstance(this).isService()) {
             if (PlayManager.getInstance(this).isPlayInNet()) {
                 currentNetSong = PlayManager.getInstance(this).getmNetSong();
@@ -177,6 +176,7 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
     protected void onPause() {
         super.onPause();
         PlayManager.getInstance(this).unregisterCallback(this);
+
         PlayManager.getInstance(this).unregisterProgressCallback(this);
     }
 

@@ -70,14 +70,19 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         mHandler = new Handler();
     }
 
+    public void startService(){
+        bindPlayService();
+        startPlayService();
+    }
+
     public void setmCurrentList(List<Song> mCurrentList) {
         this.mCurrentList = mCurrentList;
     }
 
-    private void bindPlayService () {
+    public void bindPlayService () {
         mContext.bindService(new Intent(mContext, PlayService.class), mConnection, Context.BIND_AUTO_CREATE);
     }
-    private void startPlayService () {
+    public void startPlayService () {
         if(Build.VERSION.SDK_INT>Build.VERSION_CODES.N_MR1){
             mContext.startForegroundService(new Intent(mContext,PlayService.class));
         }
@@ -89,10 +94,9 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
             mService = ((PlayService.PlayBinder)service).getService();
             mService.setPlayStateChangeListener(PlayManager.this);
             Log.v(TAG, "onServiceConnected");
-//            startRemoteControl();
-            if (!isPlaying()) {
-                dispatch(mSong,"dispatch");
-            }
+//            if (!isPlaying()) {
+//                dispatch(mSong,"dispatch");
+//            }
 
         }
 
@@ -114,8 +118,6 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         Log.v(TAG, "dispatch BY=" + by);
         Log.v(TAG, "dispatch song=" + song);
         Log.v(TAG, "dispatch getAudioFocus mService=" + mService);
-        bindPlayService();
-        startPlayService();
         if (mService != null) {
             mNetSong=null;
              if (song.equals(mSong)) {
@@ -146,7 +148,6 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
     }
 
     public void playNetSong(NetworkSong networkSong,String adress){
-
         if (mService != null) {
             if(networkSong.equals(mNetSong)){
                 if (!mService.isStarted()){
@@ -165,6 +166,7 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
             mNetSong = networkSong;
             bindPlayService();
             startPlayService();
+            Log.d("data", "wtf");
         }
     }
 
@@ -194,7 +196,7 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
     private Runnable mUIRunnable = new Runnable() {
         @Override
         public void run() {
-            if (mCallbacks != null && !mCallbacks.isEmpty()) {
+            if (mService!=null&&mCallbacks != null && !mCallbacks.isEmpty()) {
                 for (ProgressCallback callback : mProgressCallbacks) {
                     if (mNetSong!=null) {
                         callback.setMusicInfoNet(mNetSong);

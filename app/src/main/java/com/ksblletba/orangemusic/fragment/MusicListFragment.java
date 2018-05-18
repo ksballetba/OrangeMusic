@@ -4,11 +4,13 @@ package com.ksblletba.orangemusic.fragment;
 
 import android.Manifest;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -57,8 +59,9 @@ public class MusicListFragment extends Fragment {
     public static String SEARCH_LIMITURL="&offset=0&limit=1";
     private SearchView searchView;
     private String searchKey;
+    private SharedPreferences pref;
     private final NetworkSong mNetSong=null;
-
+    private Song currentSong=null;
     @BindView(R.id.music_recyclerview)
     RecyclerView musicRecyclerview;
     Unbinder unbinder;
@@ -74,9 +77,9 @@ public class MusicListFragment extends Fragment {
 
         View view = inflater.inflate(R.layout.fragment_music_list, container, false);
         musicRecyclerview = view.findViewById(R.id.music_recyclerview);
+
 //        initRecyclerView();
         MusicListFragmentPermissionsDispatcher.initViewWithPermissionCheck(this);
-
         unbinder = ButterKnife.bind(this, view);
         return view;
     }
@@ -108,6 +111,7 @@ public class MusicListFragment extends Fragment {
     @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
     void initView() {
         if (getActivity()instanceof MainActivity) {
+
             final List<Song> songs = MediaUtils.getAudioList(getActivity());
             for (Song song : songs) {
                 Uri albumArt = MediaUtils.getAlbumArtUri(song.getAlbumId());
@@ -121,7 +125,7 @@ public class MusicListFragment extends Fragment {
             adapter.setOnItemClickListener(new MusicListItemAdapter.OnItemClickListener() {
                 @Override
                 public void onItemClick(View view, int position) {
-                    Song currentSong = songs.get(position);
+                    currentSong = songs.get(position);
                     MainActivity ma = (MainActivity) getActivity();
                     ma.setCurrentSong(currentSong);
                     PlayManager pm = PlayManager.getInstance(getContext());
@@ -135,6 +139,15 @@ public class MusicListFragment extends Fragment {
             });
             musicRecyclerview.setAdapter(adapter);
         } else if(getActivity()instanceof SearchActivity){
+            pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            List<Song> songList = MediaUtils.getAudioList(getContext());
+            if (currentSong == null) {
+                currentSong = songList.get(0);
+            }
+            for (Song song : songList) {
+                if (song.getTitle().equals(pref.getString("song_name", "")))
+                    currentSong = song;
+            }
             searchView = getActivity().findViewById(R.id.search_view);
             searchView.setOnQueryTextListener(onQueryTextListener);
             final SwipeRefreshLayout swipeRefreshLayout = getActivity().findViewById(R.id.swipe_refresh);
@@ -190,28 +203,31 @@ public class MusicListFragment extends Fragment {
                         adapter.setOnItemClickListener(new MusicListItemAdapter.OnItemClickListener() {
                             @Override
                             public void onItemClick(View view, int position) {
-                                final NetworkSong networkSong = netWorkSongs.get(position);
-                                String playAdress = "https://api.imjad.cn/cloudmusic/?type=song&id="+networkSong.getSongId()+"&br=128000";
-                                HttpUtils.sendOkHttpRequestbyGet(playAdress, new Callback() {
-                                    @Override
-                                    public void onFailure(Call call, IOException e) {
-                                        e.printStackTrace();
-                                    }
+                                if (PlayManager.getInstance(getContext()).isService()) {
+                                    final NetworkSong networkSong = netWorkSongs.get(position);
+                                    String playAdress = "https://api.imjad.cn/cloudmusic/?type=song&id=" + networkSong.getSongId() + "&br=128000";
+                                    HttpUtils.sendOkHttpRequestbyGet(playAdress, new Callback() {
+                                        @Override
+                                        public void onFailure(Call call, IOException e) {
+                                            e.printStackTrace();
+                                        }
 
-                                    @Override
-                                    public void onResponse(Call call, Response response) throws IOException {
-                                        final String respt = response.body().string();
-                                        String playAdress = NetWorkUtil.getPlayAdress(respt);
-                                        PlayManager.getInstance(getContext()).playNetSong(networkSong,playAdress);
-                                        Log.d("data", "onClick: "+ PlayManager.getInstance(getContext()).getmState());
-                                        Log.d("data", ""+ networkSong.getName());
+                                        @Override
+                                        public void onResponse(Call call, Response response) throws IOException {
+                                            final String respt = response.body().string();
+                                            String playAdress = NetWorkUtil.getPlayAdress(respt);
+                                            PlayManager.getInstance(getContext()).playNetSong(networkSong, playAdress);
+                                            Log.d("data", "onClick: " + PlayManager.getInstance(getContext()).getmState());
+                                            Log.d("data", "" + networkSong.getName());
 //                                        Message msg =
-                                    }
-                                });
-
-                                Intent intent = new Intent(getActivity(),PlayDetailActivity.class);
-                                Log.d("data", "+++"+PlayManager.getInstance(getContext()).getmNetSong());
-                                startActivity(intent);
+                                        }
+                                    });
+                                    Intent intent = new Intent(getActivity(), PlayDetailActivity.class);
+                                    Log.d("data", "+++" + PlayManager.getInstance(getContext()).getmNetSong());
+                                    startActivity(intent);
+                                } else {
+                                    PlayManager.getInstance(getActivity()).dispatch(currentSong,"   ");
+                                }
                             }
 
                             @Override
