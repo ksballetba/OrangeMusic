@@ -26,6 +26,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -41,11 +42,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.ksblletba.orangemusic.adapter.PlayListAdapter;
 import com.ksblletba.orangemusic.bean.Album;
 import com.ksblletba.orangemusic.bean.NetworkSong;
+import com.ksblletba.orangemusic.bean.PlayListItem;
 import com.ksblletba.orangemusic.bean.Song;
 import com.ksblletba.orangemusic.fragment.AlbumListFragment;
 import com.ksblletba.orangemusic.fragment.MusicListFragment;
+import com.ksblletba.orangemusic.fragment.PlayListFragment;
 import com.ksblletba.orangemusic.manager.PlayManager;
 import com.ksblletba.orangemusic.manager.ruler.Rule;
 import com.ksblletba.orangemusic.service.PlayService;
@@ -110,6 +114,7 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
     private List<Fragment> fragmentList = new ArrayList<>();
     private MusicListFragment musicListFragment = new MusicListFragment();
     private AlbumListFragment albumListFragment = new AlbumListFragment();
+    private PlayListFragment playListFragment = new PlayListFragment();
     private Song currentSong = null;
     private List<Song> songList;
     private SearchView searchView;
@@ -253,8 +258,10 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
 
 
     private void initViewPager() {
+
         fragmentList.add(musicListFragment);
         fragmentList.add(albumListFragment);
+        fragmentList.add(playListFragment);
         mainViewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
@@ -266,9 +273,11 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
                 return fragmentList.size();
             }
         });
+        mainViewPager.setOffscreenPageLimit(3);
         mainTabLayout.setupWithViewPager(mainViewPager);
         mainTabLayout.getTabAt(0).setText("歌曲");
         mainTabLayout.getTabAt(1).setText("专辑");
+        mainTabLayout.getTabAt(2).setText("歌单");
     }
 
     private View.OnClickListener viewClistener = new View.OnClickListener() {
@@ -291,8 +300,10 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
                     Log.d("data", "onClick: " + PlayManager.getInstance(v.getContext()).isPlaying());
                     break;
                 case R.id.music_mini_option_next:
-                    PlayManager.getInstance(v.getContext()).next();
+//                    PlayManager.getInstance(v.getContext()).next();
+                    demo();
                     break;
+
                 case R.id.music_mini_option_previous:
                     PlayManager.getInstance(v.getContext()).previous();
                     break;
@@ -420,5 +431,33 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
         navHeadArtist.setText(song.getArtists().get(0).getName());
         Glide.with(this).load(song.getAlbum().getPicUrl()).into(musicMiniThump);
         Glide.with(this).load(song.getAlbum().getPicUrl()).into(navHeadImage);
+    }
+
+    private void demo(){
+        String playlistUrl = "https://api.imjad.cn/cloudmusic/?type=search&search_type=1000&s=民谣&offset=1&limit=10";
+        HttpUtils.sendOkHttpRequestbyPost(playlistUrl, new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+                Log.d("data", "竟然tm");
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                final String responseText = response.body().string();
+                final String demo = NetWorkUtil.demo(responseText);
+                final List<PlayListItem> playListItems = NetWorkUtil.getPlaylist(responseText);
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+//                        if(playListItems == null)
+//                            Log.d("data", "onResponse: ");
+//                        else
+//                            Log.d("data", "run: "+playListItems.get(0).getName());
+                            Log.d("data", "run: "+playListItems.get(8).getName());
+                    }
+                });
+
+            }
+        });
     }
 }

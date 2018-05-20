@@ -2,6 +2,7 @@ package com.ksblletba.orangemusic.utils;
 
 import com.google.gson.Gson;
 import com.ksblletba.orangemusic.bean.NetworkSong;
+import com.ksblletba.orangemusic.bean.PlayListItem;
 import com.ksblletba.orangemusic.manager.PlayManager;
 
 import org.json.JSONArray;
@@ -62,6 +63,49 @@ public class NetWorkUtil {
         return null;
     }
 
+
+    public static List<PlayListItem> getPlaylist(String response){
+        List<PlayListItem> playListItems = new ArrayList<>();
+        try{
+            JSONObject all = new JSONObject(response);
+            JSONObject result = all.getJSONObject("result");
+            JSONArray playlists = result.getJSONArray("playlists");
+            for(int i=0;i<playlists.length();i++){
+                JSONObject playlist = playlists.getJSONObject(i);
+                String playlistContent = playlist.toString();
+                PlayListItem playListItem = new Gson().fromJson(playlistContent,PlayListItem.class);
+                playListItems.add(playListItem);
+            }
+            return playListItems;
+
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static String demo(String response){
+        List<PlayListItem> playListItems = new ArrayList<>();
+        try{
+            JSONObject all = new JSONObject(response);
+            JSONObject result = all.getJSONObject("result");
+            JSONArray playlists = result.getJSONArray("playlists");
+            for(int i=0;i<playlists.length();i++){
+                String playlistContent = playlists.get(i).toString();
+                PlayListItem playListItem = new Gson().fromJson(playlistContent,PlayListItem.class);
+                playListItems.add(playListItem);
+            }
+            String content = playlists.get(0).toString();
+            PlayListItem haha = new Gson().fromJson(content,PlayListItem.class);
+//            return playListItems.get(0).getName()+playlists.length();
+            return haha.getName();
+
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public static String getPlayAdress(String response){
         try{
             JSONObject all = new JSONObject(response);
@@ -73,5 +117,6 @@ public class NetWorkUtil {
         }
         return null;
     }
+
 
 }

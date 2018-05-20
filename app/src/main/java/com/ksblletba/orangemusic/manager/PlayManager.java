@@ -13,6 +13,7 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
+import com.ksblletba.orangemusic.MainActivity;
 import com.ksblletba.orangemusic.bean.Album;
 import com.ksblletba.orangemusic.bean.NetworkSong;
 import com.ksblletba.orangemusic.bean.Song;
@@ -70,10 +71,6 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         mHandler = new Handler();
     }
 
-    public void startService(){
-        bindPlayService();
-        startPlayService();
-    }
 
     public void setmCurrentList(List<Song> mCurrentList) {
         this.mCurrentList = mCurrentList;
@@ -94,7 +91,7 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
             mService = ((PlayService.PlayBinder)service).getService();
             mService.setPlayStateChangeListener(PlayManager.this);
             Log.v(TAG, "onServiceConnected");
-//            if (!isPlaying()) {
+//            if (!isPlaying()&&mContext) {
 //                dispatch(mSong,"dispatch");
 //            }
 

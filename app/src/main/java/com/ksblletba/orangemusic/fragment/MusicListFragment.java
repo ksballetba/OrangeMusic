@@ -54,9 +54,6 @@ public class MusicListFragment extends Fragment {
     private MusicListItemAdapter adapter;
     private List<MusicListItem> musicListItemList = new ArrayList<>();
     private List<String> musicNameList = new ArrayList<>();
-    public static String SEARCH_FOREURL="https://v1.hitokoto.cn/nm/search/";
-    public static String SEARCH_TYPEURL="?type=";
-    public static String SEARCH_LIMITURL="&offset=0&limit=1";
     private SearchView searchView;
     private String searchKey;
     private SharedPreferences pref;
@@ -159,7 +156,7 @@ public class MusicListFragment extends Fragment {
                     swipeRefreshLayout.setEnabled(topRowVerticalPosition >= 0);
                 }
             });
-            swipeRefreshLayout.setColorSchemeResources(R.color.colorPrimary);
+            swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent);
             swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
                 @Override
                 public void onRefresh() {
