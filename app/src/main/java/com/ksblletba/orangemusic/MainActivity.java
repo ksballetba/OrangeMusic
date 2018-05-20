@@ -46,6 +46,7 @@ import com.ksblletba.orangemusic.adapter.PlayListAdapter;
 import com.ksblletba.orangemusic.bean.Album;
 import com.ksblletba.orangemusic.bean.NetworkSong;
 import com.ksblletba.orangemusic.bean.PlayListItem;
+import com.ksblletba.orangemusic.bean.PlayListSong;
 import com.ksblletba.orangemusic.bean.Song;
 import com.ksblletba.orangemusic.fragment.AlbumListFragment;
 import com.ksblletba.orangemusic.fragment.MusicListFragment;
@@ -431,6 +432,16 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
         navHeadArtist.setText(song.getArtists().get(0).getName());
         Glide.with(this).load(song.getAlbum().getPicUrl()).into(musicMiniThump);
         Glide.with(this).load(song.getAlbum().getPicUrl()).into(navHeadImage);
+    }
+
+    @Override
+    public void setMusicInfoNet(PlayListSong song) {
+        mainMiniTitle.setText(song.getName());
+        navHeadSongName.setText(song.getName());
+        mainMiniArtistAlbum.setText(song.getAr().get(0).getName());
+        navHeadArtist.setText(song.getAr().get(0).getName());
+        Glide.with(this).load(song.getAl().getPicUrl()).into(musicMiniThump);
+        Glide.with(this).load(song.getAl().getPicUrl()).into(navHeadImage);
     }
 
     private void demo(){

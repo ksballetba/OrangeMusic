@@ -23,6 +23,7 @@ import com.ksblletba.orangemusic.adapter.MusicListItemAdapter;
 import com.ksblletba.orangemusic.bean.Album;
 import com.ksblletba.orangemusic.bean.MusicListItem;
 import com.ksblletba.orangemusic.bean.NetworkSong;
+import com.ksblletba.orangemusic.bean.PlayListSong;
 import com.ksblletba.orangemusic.bean.Song;
 import com.ksblletba.orangemusic.manager.PlayManager;
 import com.ksblletba.orangemusic.manager.ruler.Rule;
@@ -63,6 +64,7 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
     Button playDetailBackbutton;
     private Song currentSong;
     private NetworkSong currentNetSong;
+    private PlayListSong currentPlaySong;
     private SharedPreferences pref;
     private SharedPreferences.Editor editor;
     private String playAdress;
@@ -88,7 +90,7 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
         playDetailRule.setOnClickListener(viewOnClickListener);
         if (PlayManager.getInstance(this).isService()) {
             if (PlayManager.getInstance(this).isPlayInNet()) {
-                currentNetSong = PlayManager.getInstance(this).getmNetSong();
+//                currentNetSong = PlayManager.getInstance(this).getmNetSong();
             }
             else {
                 if(PlayManager.getInstance(this).getCurrentSong()!=null)
@@ -108,14 +110,14 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
         }
 
         if (PlayManager.getInstance(this).isPlayInNet()){
-            Log.d("data", ""+currentNetSong.getName());
+//            Log.d("data", ""+currentNetSong.getName());
         } else {
             setMusicInfo(currentSong);
         }
 
 
 //        setMusicInfo(currentSong);
-        Log.d("data", "+++"+currentNetSong);
+//        Log.d("data", "+++"+currentNetSong);
         Log.d("data", "+++"+currentSong);
     }
 
@@ -270,6 +272,14 @@ public class PlayDetailActivity extends AppCompatActivity implements PlayManager
         playDetailMusicTitle.setText(song.getName());
         playDetailArtistName.setText(song.getArtists().get(0).getName());
         Glide.with(this).load(song.getAlbum().getPicUrl()).into(playDetailImage);
+
+//        playDetailImage.setImageResource(R.drawable.music2);
+    }
+    @Override
+    public void setMusicInfoNet(PlayListSong song) {
+        playDetailMusicTitle.setText(song.getName());
+        playDetailArtistName.setText(song.getAr().get(0).getName());
+        Glide.with(this).load(song.getAl().getPicUrl()).into(playDetailImage);
 
 //        playDetailImage.setImageResource(R.drawable.music2);
     }

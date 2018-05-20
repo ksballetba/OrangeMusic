@@ -108,7 +108,6 @@ public class MusicListFragment extends Fragment {
     @NeedsPermission(Manifest.permission.READ_EXTERNAL_STORAGE)
     void initView() {
         if (getActivity()instanceof MainActivity) {
-
             final List<Song> songs = MediaUtils.getAudioList(getActivity());
             for (Song song : songs) {
                 Uri albumArt = MediaUtils.getAlbumArtUri(song.getAlbumId());

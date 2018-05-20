@@ -1,8 +1,11 @@
 package com.ksblletba.orangemusic.utils;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.ksblletba.orangemusic.bean.NetworkSong;
 import com.ksblletba.orangemusic.bean.PlayListItem;
+import com.ksblletba.orangemusic.bean.PlayListSong;
 import com.ksblletba.orangemusic.manager.PlayManager;
 
 import org.json.JSONArray;
@@ -78,6 +81,25 @@ public class NetWorkUtil {
             }
             return playListItems;
 
+        } catch (JSONException e){
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static List<PlayListSong> getNetSongsByPlaylist(String response){
+        List<PlayListSong> playListSongs = new ArrayList<>();
+        try{
+            JSONObject all = new JSONObject(response);
+            JSONObject playlist = all.getJSONObject("playlist");
+            JSONArray tracks = playlist.getJSONArray("tracks");
+            for(int i=0;i<tracks.length();i++){
+                JSONObject song = tracks.getJSONObject(i);
+                String songContent = song.toString();
+                PlayListSong playListSong = new Gson().fromJson(songContent,PlayListSong.class);
+                playListSongs.add(playListSong);
+            }
+            return playListSongs;
         } catch (JSONException e){
             e.printStackTrace();
         }

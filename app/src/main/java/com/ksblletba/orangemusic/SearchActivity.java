@@ -43,9 +43,6 @@ public class SearchActivity extends AppCompatActivity {
     private ActionBar actionBar;
     private List<Fragment> fragments = new ArrayList<>();
     private MusicListFragment musicListFragment = new MusicListFragment();
-    public static String SEARCH_FOREURL = "https://v1.hitokoto.cn/nm/search/";
-    public static String SEARCH_TYPEURL = "?type=";
-    public static String SEARCH_LIMITURL = "?&offset=0&limit=30";
 
     public String getSearchKey() {
         return searchKey;

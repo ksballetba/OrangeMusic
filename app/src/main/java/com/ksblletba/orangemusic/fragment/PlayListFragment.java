@@ -1,6 +1,7 @@
 package com.ksblletba.orangemusic.fragment;
 
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.GridLayoutManager;
@@ -11,9 +12,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.ksblletba.orangemusic.PlayListActivity;
 import com.ksblletba.orangemusic.R;
 import com.ksblletba.orangemusic.adapter.PlayListAdapter;
 import com.ksblletba.orangemusic.bean.PlayListItem;
+import com.ksblletba.orangemusic.bean.PlayListSong;
 import com.ksblletba.orangemusic.utils.HttpUtils;
 import com.ksblletba.orangemusic.utils.NetWorkUtil;
 
@@ -38,7 +41,6 @@ public class PlayListFragment extends Fragment {
     RecyclerView playlistRecyclerview2;
     @BindView(R.id.playlist_recyclerview3)
     RecyclerView playlistRecyclerview3;
-    private PlayListAdapter adapter;
 
 
     public PlayListFragment() {
@@ -90,9 +92,25 @@ public class PlayListFragment extends Fragment {
                         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
                         llm.setOrientation(LinearLayoutManager.HORIZONTAL);
                         GridLayoutManager glm = new GridLayoutManager(getContext(), 2, GridLayoutManager.HORIZONTAL, false);
-                        adapter = new PlayListAdapter(playListItems);
+                        PlayListAdapter adapter = new PlayListAdapter(playListItems);
                         playlistRecyclerview.setLayoutManager(glm);
                         playlistRecyclerview.setAdapter(adapter);
+                        adapter.setOnItemClickListener(new PlayListAdapter.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(View view, int position) {
+                                final PlayListItem sendPlaylist = playListItems.get(position);
+                                Intent intent = new Intent(getActivity(), PlayListActivity.class);
+                                intent.putExtra("playlist_title",sendPlaylist.getName());
+                                intent.putExtra("playlist_id",sendPlaylist.getId());
+                                intent.putExtra("playlist_image",sendPlaylist.getCoverImgUrl());
+                                startActivity(intent);
+                            }
+
+                            @Override
+                            public void onItemLongClick(View view, int position) {
+
+                            }
+                        });
                     }
                 });
             }
@@ -114,9 +132,25 @@ public class PlayListFragment extends Fragment {
                         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
                         llm.setOrientation(LinearLayoutManager.HORIZONTAL);
                         GridLayoutManager glm = new GridLayoutManager(getContext(), 2, GridLayoutManager.HORIZONTAL, false);
-                        adapter = new PlayListAdapter(playListItems);
+                        PlayListAdapter adapter = new PlayListAdapter(playListItems);
                         playlistRecyclerview2.setLayoutManager(glm);
                         playlistRecyclerview2.setAdapter(adapter);
+                        adapter.setOnItemClickListener(new PlayListAdapter.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(View view, int position) {
+                                final PlayListItem sendPlaylist = playListItems.get(position);
+                                Intent intent = new Intent(getActivity(), PlayListActivity.class);
+                                intent.putExtra("playlist_title",sendPlaylist.getName());
+                                intent.putExtra("playlist_id",sendPlaylist.getId());
+                                intent.putExtra("playlist_image",sendPlaylist.getCoverImgUrl());
+                                startActivity(intent);
+                            }
+
+                            @Override
+                            public void onItemLongClick(View view, int position) {
+
+                            }
+                        });
                     }
                 });
             }
@@ -139,9 +173,25 @@ public class PlayListFragment extends Fragment {
                         LinearLayoutManager llm = new LinearLayoutManager(getActivity());
                         llm.setOrientation(LinearLayoutManager.HORIZONTAL);
                         GridLayoutManager glm = new GridLayoutManager(getContext(), 2, GridLayoutManager.HORIZONTAL, false);
-                        adapter = new PlayListAdapter(playListItems);
+                        PlayListAdapter adapter = new PlayListAdapter(playListItems);
                         playlistRecyclerview3.setLayoutManager(glm);
                         playlistRecyclerview3.setAdapter(adapter);
+                        adapter.setOnItemClickListener(new PlayListAdapter.OnItemClickListener() {
+                            @Override
+                            public void onItemClick(View view, int position) {
+                                final PlayListItem sendPlaylist = playListItems.get(position);
+                                Intent intent = new Intent(getActivity(), PlayListActivity.class);
+                                intent.putExtra("playlist_title",sendPlaylist.getName());
+                                intent.putExtra("playlist_id",sendPlaylist.getId());
+                                intent.putExtra("playlist_image",sendPlaylist.getCoverImgUrl());
+                                startActivity(intent);
+                            }
+
+                            @Override
+                            public void onItemLongClick(View view, int position) {
+
+                            }
+                        });
                     }
                 });
             }

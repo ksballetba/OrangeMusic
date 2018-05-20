@@ -26,7 +26,9 @@
             android:name=".service.PlayService"
             android:enabled="true"
             android:exported="true" />
-        <activity android:name=".SearchActivity"></activity>
+
+        <activity android:name=".SearchActivity" />
+        <activity android:name=".PlayListActivity"></activity>
     </application>
 
 </manifest>

@@ -79,6 +79,8 @@ public class AlbumActivity extends AppCompatActivity {
         });
     }
 
+
+
     private View.OnClickListener viewOnClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {

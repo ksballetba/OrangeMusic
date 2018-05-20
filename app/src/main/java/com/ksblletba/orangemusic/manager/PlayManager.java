@@ -16,6 +16,7 @@ import android.util.Log;
 import com.ksblletba.orangemusic.MainActivity;
 import com.ksblletba.orangemusic.bean.Album;
 import com.ksblletba.orangemusic.bean.NetworkSong;
+import com.ksblletba.orangemusic.bean.PlayListSong;
 import com.ksblletba.orangemusic.bean.Song;
 import com.ksblletba.orangemusic.manager.ruler.Rule;
 import com.ksblletba.orangemusic.manager.ruler.Rulers;
@@ -48,6 +49,7 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
     private int mState = PlayService.STATE_IDLE;
     private Rule mPlayRule = Rulers.RULER_LIST_LOOP;
     private PlayService mService;
+    private PlayListSong mPlaylistSong;
     private String playAdress;
 
 
@@ -117,6 +119,7 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         Log.v(TAG, "dispatch getAudioFocus mService=" + mService);
         if (mService != null) {
             mNetSong=null;
+            mPlaylistSong=null;
              if (song.equals(mSong)) {
                 if (mService.isStarted()) {
                     //Do really this action by user
@@ -146,6 +149,7 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
 
     public void playNetSong(NetworkSong networkSong,String adress){
         if (mService != null) {
+            mPlaylistSong=null;
             if(networkSong.equals(mNetSong)){
                 if (!mService.isStarted()){
                     resume();
@@ -167,6 +171,30 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         }
     }
 
+    public void playNetSong(PlayListSong networkSong, String adress){
+        if (mService != null) {
+            mNetSong=null;
+            if(networkSong.equals(mPlaylistSong)){
+                if (!mService.isStarted()){
+                    resume();
+                } else {
+                    mService.releasePlayer();
+                    mPlaylistSong = networkSong;
+                    mService.startPlayerNet(adress);
+                }
+            } else {
+                mService.releasePlayer();
+                mPlaylistSong = networkSong;
+                mService.startPlayerNet(adress);
+            }
+        } else {
+            mPlaylistSong = networkSong;
+            bindPlayService();
+            startPlayService();
+            Log.d("data", "wtf");
+        }
+    }
+
 
 
     private int mPeriod = 1000;
@@ -176,7 +204,7 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
         public void run() {
             if (mCallbacks != null && !mCallbacks.isEmpty()) {
                 for (ProgressCallback callback : mProgressCallbacks) {
-                    if (mSong!=null&&mNetSong==null) {
+                    if (mSong!=null&&mNetSong==null&&mPlaylistSong==null) {
                         callback.onProgress(mService.getPosition(), mSong.getDuration());
                     }
                 }
@@ -198,6 +226,10 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
                     if (mNetSong!=null) {
                         callback.setMusicInfoNet(mNetSong);
                         callback.onProgress(mService.getPosition(),mNetSong.getDuration());
+                    }
+                    if(mPlaylistSong!=null){
+                        callback.setMusicInfoNet(mPlaylistSong);
+                        callback.onProgress(mService.getPosition(),mPlaylistSong.getDt());
                     }
                 }
                 mHandler.postDelayed(this, mPeriodNet);
@@ -401,5 +433,6 @@ public class PlayManager implements PlayService.PlayStateChangeListener {
     public interface ProgressCallback {
         void onProgress (int progress, int duration);
         void setMusicInfoNet(NetworkSong song);
+        void setMusicInfoNet(PlayListSong song);
     }
 }
