@@ -16,6 +16,7 @@ import android.view.MenuItem;
 import android.widget.LinearLayout;
 
 import com.ksblletba.orangemusic.fragment.MusicListFragment;
+import com.ksblletba.orangemusic.fragment.PlayListSearchFragment;
 import com.ksblletba.orangemusic.manager.PlayManager;
 
 import java.util.ArrayList;
@@ -43,6 +44,7 @@ public class SearchActivity extends AppCompatActivity {
     private ActionBar actionBar;
     private List<Fragment> fragments = new ArrayList<>();
     private MusicListFragment musicListFragment = new MusicListFragment();
+    private PlayListSearchFragment playListSearchFragment = new PlayListSearchFragment();
 
     public String getSearchKey() {
         return searchKey;
@@ -79,6 +81,7 @@ public class SearchActivity extends AppCompatActivity {
 
     private void initViewPager() {
         fragments.add(musicListFragment);
+        fragments.add(playListSearchFragment);
         searchViewPager.setAdapter(new FragmentPagerAdapter(getSupportFragmentManager()) {
             @Override
             public Fragment getItem(int position) {
@@ -92,5 +95,6 @@ public class SearchActivity extends AppCompatActivity {
         });
         searchTabLayout.setupWithViewPager(searchViewPager);
         searchTabLayout.getTabAt(0).setText("单曲");
+        searchTabLayout.getTabAt(1).setText("歌单");
     }
 }

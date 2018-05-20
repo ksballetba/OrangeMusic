@@ -12,8 +12,10 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.ksblletba.orangemusic.MainActivity;
 import com.ksblletba.orangemusic.PlayListActivity;
 import com.ksblletba.orangemusic.R;
+import com.ksblletba.orangemusic.SearchActivity;
 import com.ksblletba.orangemusic.adapter.PlayListAdapter;
 import com.ksblletba.orangemusic.bean.PlayListItem;
 import com.ksblletba.orangemusic.bean.PlayListSong;

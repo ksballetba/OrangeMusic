@@ -68,7 +68,6 @@ public class PlayListActivity extends AppCompatActivity {
     private Long playlistId;
     private String playlistTitle;
     private String playlistImage;
-    private Bitmap playlistBitmapd;
     private MusicListItemAdapter adapter;
     private List<MusicListItem> musicListItems = new ArrayList<>();
     private SharedPreferences pref;
@@ -87,7 +86,6 @@ public class PlayListActivity extends AppCompatActivity {
         playlistTitle = getIntent().getStringExtra("playlist_title");
         playlistImage = getIntent().getStringExtra("playlist_image");
         playlistId = getIntent().getLongExtra("playlist_id", 0);
-
         if (actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setTitle(playlistTitle);
@@ -124,24 +122,6 @@ public class PlayListActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    private void BulrImage(){
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Bitmap playlistBitmapc = MediaUtils.getBitmapFromURL(playlistImage);
-                playlistBitmapd = MediaUtils.rsBlur(getApplicationContext(),playlistBitmapc,40);
-                Log.d("data", "onCreate: "+playlistBitmapd);
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-//                        Glide.with(PlayListActivity.this).load(playlistBitmapd).into(playlistActImage);
-                        playlistActImage.setImageBitmap(playlistBitmapd);
-                    }
-                });
-            }
-        }).start();
-
-    }
 
     private View.OnClickListener viewOnClickListener = new View.OnClickListener() {
         @Override

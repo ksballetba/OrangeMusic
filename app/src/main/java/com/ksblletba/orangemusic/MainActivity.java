@@ -301,8 +301,8 @@ public class MainActivity extends AppCompatActivity implements PlayManager.Callb
                     Log.d("data", "onClick: " + PlayManager.getInstance(v.getContext()).isPlaying());
                     break;
                 case R.id.music_mini_option_next:
-//                    PlayManager.getInstance(v.getContext()).next();
-                    demo();
+                    PlayManager.getInstance(v.getContext()).next();
+//                    demo();
                     break;
 
                 case R.id.music_mini_option_previous:

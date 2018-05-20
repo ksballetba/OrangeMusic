@@ -1,5 +1,8 @@
 package com.ksblletba.orangemusic.utils;
 
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -27,15 +30,18 @@ public class HttpUtils {
         client.newCall(request).enqueue(callback);
     }
 
-    public static void sendOkHttpRequestforStream(String address,okhttp3.Callback callback){
+    public static Bitmap getInpuStream(String url) {
         try {
             OkHttpClient client = new OkHttpClient();
-            Request request = new Request.Builder().url(address).build();
+            Request request = new Request.Builder().url(url).build();
             InputStream in = client.newCall(request).execute().body().byteStream();
-            client.newCall(request).enqueue(callback);
+            Bitmap myBitmap = BitmapFactory.decodeStream(in);
+            return myBitmap;
         } catch (IOException e){
             e.printStackTrace();
         }
+        return null;
+
     }
 
 }
